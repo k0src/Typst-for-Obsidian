@@ -1,6 +1,6 @@
 {
   "name": "typst-for-obsidian",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "A Typst editor integrated into Obsidian, enabling you to create and preview Typst documents seamlessly within your notes.",
   "main": "main.js",
   "type": "module",

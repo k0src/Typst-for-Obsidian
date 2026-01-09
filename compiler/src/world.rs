@@ -11,6 +11,7 @@ use typst::{
     text::{ Font, FontBook },
     utils::LazyHash,
     Library,
+    LibraryExt,
     World,
 };
 use wasm_bindgen::JsValue;
