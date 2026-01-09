@@ -331,15 +331,11 @@ export class PdfRenderer {
     scale: number,
     dpr: number
   ): Promise<void> {
-    if (!this.pdfium) return;
-
-    const pdfiumModule = this.pdfium.pdfium as any;
-
-    if (typeof this.pdfium.FPDFLink_Enumerate !== "function") {
-      console.warn("FPDFLink_Enumerate not available");
+    if (!this.pdfium || typeof this.pdfium.FPDFLink_Enumerate !== "function") {
       return;
     }
 
+    const pdfiumModule = this.pdfium.pdfium as any;
     const linkLayerDiv = pageContainer.createDiv("linkLayer");
 
     const rectBuffer = pdfiumModule._malloc(16); // FS_RECTF: 4 floats * 4 bytes
