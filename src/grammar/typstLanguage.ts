@@ -149,6 +149,33 @@ export async function registerTypstLanguage(): Promise<void> {
     ],
     wordPattern:
       /(-?\d*\.\d\w*)|([^\`\~\!\@\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g,
+    indentationRules: {
+      increaseIndentPattern: /^.*\{[^}]*$/,
+      decreaseIndentPattern: /^\s*\}/,
+    },
+    onEnterRules: [
+      {
+        beforeText: /\{[^}]*$/,
+        afterText: /^\s*\}/,
+        action: {
+          indentAction: monaco.languages.IndentAction.IndentOutdent,
+        },
+      },
+      {
+        beforeText: /\[[^\]]*$/,
+        afterText: /^\s*\]/,
+        action: {
+          indentAction: monaco.languages.IndentAction.IndentOutdent,
+        },
+      },
+      {
+        beforeText: /\([^)]*$/,
+        afterText: /^\s*\)/,
+        action: {
+          indentAction: monaco.languages.IndentAction.IndentOutdent,
+        },
+      },
+    ],
   });
 }
 

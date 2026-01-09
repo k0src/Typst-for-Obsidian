@@ -87,6 +87,11 @@ export class TypstEditor {
       wordBasedSuggestions: "off",
       parameterHints: { enabled: false },
       padding: { top: 16, bottom: 64 },
+      autoClosingBrackets: "always",
+      autoClosingQuotes: "always",
+      autoIndent: "full",
+      formatOnType: true,
+      formatOnPaste: true,
     };
 
     this.monacoEditor = monaco.editor.create(this.container, editorOptions);
@@ -129,6 +134,91 @@ export class TypstEditor {
         }
       }
     );
+
+    this.monacoEditor.onKeyDown((e) => {
+      if (
+        e.keyCode === monaco.KeyCode.Enter &&
+        !e.shiftKey &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.metaKey
+      ) {
+        const model = this.monacoEditor?.getModel();
+        const position = this.monacoEditor?.getPosition();
+
+        if (!model || !position) return;
+
+        const lineContent = model.getLineContent(position.lineNumber);
+        const beforeCursor = lineContent.substring(0, position.column - 1);
+        const afterCursor = lineContent.substring(position.column - 1);
+
+        const openBrackets = ["{", "[", "("];
+        const bracketPairs = [
+          ["{", "}"],
+          ["[", "]"],
+          ["(", ")"],
+        ];
+
+        for (let i = 0; i < bracketPairs.length; i++) {
+          const [open, close] = bracketPairs[i];
+          if (beforeCursor.endsWith(open) && afterCursor.startsWith(close)) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const currentIndent = beforeCursor.match(/^\s*/)?.[0] || "";
+            const indentUnit = "  ";
+
+            this.monacoEditor?.executeEdits("smart-indent", [
+              {
+                range: new monaco.Range(
+                  position.lineNumber,
+                  position.column,
+                  position.lineNumber,
+                  position.column
+                ),
+                text: "\n" + currentIndent + indentUnit + "\n" + currentIndent,
+              },
+            ]);
+
+            this.monacoEditor?.setPosition({
+              lineNumber: position.lineNumber + 1,
+              column: currentIndent.length + indentUnit.length + 1,
+            });
+
+            return;
+          }
+        }
+
+        for (const open of openBrackets) {
+          if (beforeCursor.trimEnd().endsWith(open)) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const currentIndent = beforeCursor.match(/^\s*/)?.[0] || "";
+            const indentUnit = "  ";
+
+            this.monacoEditor?.executeEdits("smart-indent", [
+              {
+                range: new monaco.Range(
+                  position.lineNumber,
+                  position.column,
+                  position.lineNumber,
+                  position.column
+                ),
+                text: "\n" + currentIndent + indentUnit,
+              },
+            ]);
+
+            this.monacoEditor?.setPosition({
+              lineNumber: position.lineNumber + 1,
+              column: currentIndent.length + indentUnit.length + 1,
+            });
+
+            return;
+          }
+        }
+      }
+    });
   }
 
   private registerSnippets(): void {
