@@ -5,24 +5,8 @@ import { PDFIUM_WASM_URL } from "./util/constants";
 export class PdfRenderer {
   private pdfium: WrappedPdfiumModule | null = null;
   private initPromise: Promise<void> | null = null;
-  private measureCanvas: HTMLCanvasElement | null = null;
-  private measureCtx: CanvasRenderingContext2D | null = null;
 
   constructor() {}
-
-  private ensureMeasureCanvas(): CanvasRenderingContext2D {
-    if (!this.measureCtx) {
-      this.measureCanvas = document.createElement("canvas");
-      this.measureCtx = this.measureCanvas.getContext("2d", {
-        alpha: false,
-        willReadFrequently: true,
-      });
-      if (!this.measureCtx) {
-        throw new Error("Failed to create measurement canvas context");
-      }
-    }
-    return this.measureCtx;
-  }
 
   private async ensurePdfiumInitialized(): Promise<void> {
     if (this.pdfium) return;
@@ -204,7 +188,7 @@ export class PdfRenderer {
         }
         ctx.putImageData(imageData, 0, 0);
 
-        // Render text layer if enabled
+        // Render text layer
         if (enableTextLayer) {
           await this.renderTextLayer(
             pagePtr,
@@ -217,6 +201,7 @@ export class PdfRenderer {
 
           // Render link layer
           await this.renderLinkLayer(
+            docPtr,
             pagePtr,
             pageContainer,
             width,
@@ -256,7 +241,6 @@ export class PdfRenderer {
       if (charCount <= 0) return;
 
       const textLayerDiv = pageContainer.createDiv("textLayer");
-      const ctx = this.ensureMeasureCanvas();
       const rectCount = this.pdfium.FPDFText_CountRects(
         textPagePtr,
         0,
@@ -272,9 +256,6 @@ export class PdfRenderer {
 
       const textBufferSize = 1000;
       const textBufferPtr = pdfiumModule._malloc(textBufferSize * 2);
-
-      let lastFontSize = -1;
-      let lastFontString = "";
 
       try {
         for (let rectIndex = 0; rectIndex < rectCount; rectIndex++) {
@@ -306,51 +287,25 @@ export class PdfRenderer {
 
           if (textLength > 1) {
             const text = this.pdfium.pdfium.UTF16ToString(textBufferPtr);
-            const midX = (left + right) / 2;
-            const midY = (top + bottom) / 2;
-            const charIndex = this.pdfium.FPDFText_GetCharIndexAtPos(
-              textPagePtr,
-              midX,
-              midY,
-              2.0,
-              2.0
-            );
-
-            let fontSize = (top - bottom) * scale;
-            if (charIndex >= 0) {
-              const pdfFontSize = this.pdfium.FPDFText_GetFontSize(
-                textPagePtr,
-                charIndex
-              );
-              if (pdfFontSize > 0) {
-                fontSize = pdfFontSize * scale;
-              }
-            }
 
             const textSpan = textLayerDiv.createEl("span");
             textSpan.textContent = text;
 
             const x = left * scale;
             const y = (pageHeight - top) * scale;
+            const fontSize = (top - bottom) * scale;
             const pdfWidth = (right - left) * scale;
 
             textSpan.style.left = `${x}px`;
             textSpan.style.top = `${y}px`;
             textSpan.style.fontSize = `${fontSize}px`;
-            textSpan.style.fontFamily = "sans-serif";
 
-            if (fontSize !== lastFontSize) {
-              lastFontSize = fontSize;
-              lastFontString = `${fontSize}px sans-serif`;
-              ctx.font = lastFontString;
-            }
+            const naturalWidth = textSpan.offsetWidth;
 
-            const metrics = ctx.measureText(text);
-            const browserWidth = metrics.width;
-
-            if (browserWidth > 0 && text.length > 1) {
-              const scaleX = pdfWidth / browserWidth;
+            if (naturalWidth > 0) {
+              const scaleX = pdfWidth / naturalWidth;
               textSpan.style.transform = `scaleX(${scaleX})`;
+              textSpan.style.width = `${pdfWidth}px`;
               textSpan.style.transformOrigin = "0 0";
             }
           }
@@ -368,6 +323,7 @@ export class PdfRenderer {
   }
 
   private async renderLinkLayer(
+    docPtr: number,
     pagePtr: number,
     pageContainer: HTMLElement,
     pageWidth: number,
@@ -375,7 +331,196 @@ export class PdfRenderer {
     scale: number,
     dpr: number
   ): Promise<void> {
-    /* TODO */
+    if (!this.pdfium) return;
+
+    const pdfiumModule = this.pdfium.pdfium as any;
+
+    if (typeof this.pdfium.FPDFLink_Enumerate !== "function") {
+      console.warn("FPDFLink_Enumerate not available");
+      return;
+    }
+
+    const linkLayerDiv = pageContainer.createDiv("linkLayer");
+
+    const rectBuffer = pdfiumModule._malloc(16); // FS_RECTF: 4 floats * 4 bytes
+    const posPtr = pdfiumModule._malloc(4); // int for startPos
+    const linkPtr = pdfiumModule._malloc(4); // FPDF_LINK pointer
+    const urlBufferSize = 2048;
+    const urlBufferPtr = pdfiumModule._malloc(urlBufferSize);
+
+    pdfiumModule.HEAP32[posPtr >> 2] = 0;
+
+    try {
+      while (this.pdfium.FPDFLink_Enumerate(pagePtr, posPtr, linkPtr)) {
+        const link = pdfiumModule.HEAP32[linkPtr >> 2];
+        if (!link) break;
+
+        const hasRect = this.pdfium.FPDFLink_GetAnnotRect(link, rectBuffer);
+        if (!hasRect) continue;
+
+        const left = pdfiumModule.HEAPF32[(rectBuffer >> 2) + 0];
+        const bottom = pdfiumModule.HEAPF32[(rectBuffer >> 2) + 1];
+        const right = pdfiumModule.HEAPF32[(rectBuffer >> 2) + 2];
+        const top = pdfiumModule.HEAPF32[(rectBuffer >> 2) + 3];
+
+        const action = this.pdfium.FPDFLink_GetAction(link);
+        const linkElement = linkLayerDiv.createEl("a");
+
+        if (!action) {
+          const dest = this.pdfium.FPDFLink_GetDest(docPtr, link);
+          if (dest) {
+            this.handleInternalLink(
+              linkElement,
+              docPtr,
+              dest,
+              pageHeight,
+              scale
+            );
+          } else {
+            continue;
+          }
+        } else {
+          const actionType = this.pdfium.FPDFAction_GetType(action);
+
+          if (actionType === 3) {
+            const uriLength = this.pdfium.FPDFAction_GetURIPath(
+              docPtr,
+              action,
+              0,
+              0
+            );
+            if (uriLength <= 0) continue;
+
+            this.pdfium.FPDFAction_GetURIPath(
+              docPtr,
+              action,
+              urlBufferPtr,
+              urlBufferSize
+            );
+
+            const urlBytes = new Uint8Array(
+              pdfiumModule.HEAPU8.buffer,
+              pdfiumModule.HEAPU8.byteOffset + urlBufferPtr,
+              uriLength - 1
+            );
+            const url = new TextDecoder().decode(urlBytes);
+
+            if (!url) continue;
+
+            linkElement.href = url;
+            linkElement.addEventListener("click", (e) => {
+              e.preventDefault();
+              window.open(url, "_blank");
+            });
+          } else if (actionType === 1) {
+            const dest = this.pdfium.FPDFAction_GetDest(docPtr, action);
+            if (dest) {
+              this.handleInternalLink(
+                linkElement,
+                docPtr,
+                dest,
+                pageHeight,
+                scale
+              );
+            } else {
+              continue;
+            }
+          } else {
+            console.warn("Unsupported action type:", actionType);
+            continue;
+          }
+        }
+
+        const x = left * scale;
+        const y = (pageHeight - top) * scale;
+        const width = (right - left) * scale;
+        const height = Math.abs((bottom - top) * scale);
+
+        linkElement.style.position = "absolute";
+        linkElement.style.left = `${x}px`;
+        linkElement.style.top = `${y}px`;
+        linkElement.style.width = `${width}px`;
+        linkElement.style.height = `${height}px`;
+        linkElement.style.cursor = "pointer";
+      }
+    } finally {
+      pdfiumModule._free(rectBuffer);
+      pdfiumModule._free(posPtr);
+      pdfiumModule._free(linkPtr);
+      pdfiumModule._free(urlBufferPtr);
+    }
+  }
+
+  private handleInternalLink(
+    linkElement: HTMLAnchorElement,
+    docPtr: number,
+    dest: number,
+    pageHeight: number,
+    scale: number
+  ): void {
+    if (!this.pdfium) return;
+
+    const destPageIndex = this.pdfium.FPDFDest_GetDestPageIndex(docPtr, dest);
+    const pdfiumModule = this.pdfium.pdfium as any;
+
+    const hasXPtr = pdfiumModule._malloc(4);
+    const hasYPtr = pdfiumModule._malloc(4);
+    const hasZoomPtr = pdfiumModule._malloc(4);
+    const xPtr = pdfiumModule._malloc(4);
+    const yPtr = pdfiumModule._malloc(4);
+    const zoomPtr = pdfiumModule._malloc(4);
+
+    try {
+      const hasLocation = this.pdfium.FPDFDest_GetLocationInPage(
+        dest,
+        hasXPtr,
+        hasYPtr,
+        hasZoomPtr,
+        xPtr,
+        yPtr,
+        zoomPtr
+      );
+
+      let scrollY: number | null = null;
+      if (hasLocation) {
+        const hasY = pdfiumModule.HEAP32[hasYPtr >> 2];
+        if (hasY) {
+          scrollY = pdfiumModule.HEAPF32[yPtr >> 2];
+        }
+      }
+
+      linkElement.href = "#";
+      linkElement.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        const scrollContainer = linkElement.closest(
+          ".view-content"
+        ) as HTMLElement;
+        const pages = document.querySelectorAll(".typst-pdf-page");
+        const targetPage = pages[destPageIndex] as HTMLElement;
+
+        if (!targetPage) return;
+
+        if (scrollY !== null && scrollContainer) {
+          const pageHeightPx = parseFloat(targetPage.style.height);
+          const screenY = pageHeightPx / scale - scrollY;
+          const scrollTop = targetPage.offsetTop + screenY * scale;
+          scrollContainer.scrollTo({ top: scrollTop, behavior: "smooth" });
+        } else if (scrollContainer) {
+          const scrollTop = targetPage.offsetTop;
+          scrollContainer.scrollTo({ top: scrollTop, behavior: "smooth" });
+        } else if (targetPage) {
+          targetPage.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    } finally {
+      pdfiumModule._free(hasXPtr);
+      pdfiumModule._free(hasYPtr);
+      pdfiumModule._free(hasZoomPtr);
+      pdfiumModule._free(xPtr);
+      pdfiumModule._free(yPtr);
+      pdfiumModule._free(zoomPtr);
+    }
   }
 
   cleanup(): void {}

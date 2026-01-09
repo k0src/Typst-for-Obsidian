@@ -265,6 +265,24 @@
   background-color: rgba(0, 100, 255, 0.3);
 }
 
+/* ============================= PDF Link Layer ============================= */
+
+.typst-pdf-page .linkLayer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.typst-pdf-page .linkLayer a {
+  position: absolute;
+  pointer-events: auto;
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+}
+
 .typst-pdf-page .annotationLayer {
   position: absolute;
   inset: 0;
