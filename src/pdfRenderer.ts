@@ -428,7 +428,7 @@ export class PdfRenderer {
         }
 
         const x = left * scale;
-        const y = (pageHeight - top) * scale;
+        const y = (pageHeight - bottom) * scale;
         const width = (right - left) * scale;
         const height = Math.abs((bottom - top) * scale);
 
