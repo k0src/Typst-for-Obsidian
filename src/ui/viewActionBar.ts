@@ -4,13 +4,16 @@ export class ViewActionBar {
   private modeIconContainer: HTMLElement | null = null;
   private exportButton: HTMLElement | null = null;
   private splitPreviewButton: HTMLElement | null = null;
+  private errorsButton: HTMLElement | null = null;
+  private errorDot: HTMLElement | null = null;
   private currentMode: "source" | "reading" = "source";
 
   constructor(
     private viewActions: Element,
     private onModeToggle: () => void,
     private onExport: () => void,
-    private onSplitPreview: () => void
+    private onSplitPreview: () => void,
+    private onShowErrors: (anchorEl: HTMLElement) => void
   ) {}
 
   initialize(initialMode: "source" | "reading"): void {
@@ -18,6 +21,7 @@ export class ViewActionBar {
     this.createModeToggleButton();
     this.createSplitPreviewButton();
     this.createExportButton();
+    this.createErrorsButton(); // Last
   }
 
   private createModeToggleButton(): void {
@@ -62,13 +66,36 @@ export class ViewActionBar {
       await this.onExport();
     });
 
-    if (this.modeIconContainer?.nextSibling) {
+    if (this.splitPreviewButton?.nextSibling) {
       this.viewActions.insertBefore(
         this.exportButton,
-        this.modeIconContainer.nextSibling
+        this.splitPreviewButton.nextSibling
       );
     } else {
       this.viewActions.appendChild(this.exportButton);
+    }
+  }
+
+  private createErrorsButton(): void {
+    this.errorsButton = createDiv("clickable-icon");
+    this.errorsButton.addClass("view-action");
+    this.errorsButton.addClass("typst-errors-btn");
+    this.errorsButton.setAttribute("aria-label", "Problems");
+    setIcon(this.errorsButton, "circle-alert");
+
+    this.errorDot = this.errorsButton.createDiv("typst-error-dot");
+    this.errorsButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.onShowErrors(this.errorsButton!);
+    });
+
+    if (this.exportButton?.nextSibling) {
+      this.viewActions.insertBefore(
+        this.errorsButton,
+        this.exportButton.nextSibling
+      );
+    } else {
+      this.viewActions.appendChild(this.errorsButton);
     }
   }
 
@@ -97,9 +124,20 @@ export class ViewActionBar {
     }
   }
 
+  updateErrorCount(count: number): void {
+    if (!this.errorDot) return;
+
+    if (count > 0) {
+      this.errorDot.addClass("visible");
+    } else {
+      this.errorDot.removeClass("visible");
+    }
+  }
+
   destroy(): void {
     this.modeIconContainer?.remove();
     this.splitPreviewButton?.remove();
+    this.errorsButton?.remove();
     this.exportButton?.remove();
   }
 }

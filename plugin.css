@@ -89,6 +89,122 @@
 }
 
 /* ========================================================================== */
+/*                            Errors Dropdown                                 */
+/* ========================================================================== */
+
+.typst-errors-btn {
+  position: relative;
+}
+
+.typst-error-dot {
+  position: absolute;
+  top: var(--size-2-1);
+  right: var(--size-2-1);
+  width: var(--size-4-2);
+  height: var(--size-4-2);
+  border-radius: 50%;
+  background-color: var(--text-error);
+  display: none;
+}
+
+.typst-error-dot.visible {
+  display: block;
+}
+
+.typst-errors-dropdown {
+  position: fixed;
+  z-index: var(--layer-popover);
+  background: var(--background-primary);
+  border: var(--border-width) solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-s);
+  min-width: 320px;
+  max-width: 450px;
+  max-height: 300px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.typst-errors-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--size-4-2) var(--size-4-3);
+  border-bottom: var(--border-width) solid var(--background-modifier-border);
+}
+
+.typst-errors-title {
+  font-size: var(--font-ui-small);
+  font-weight: var(--font-semibold);
+  color: var(--text-normal);
+}
+
+.typst-errors-close {
+  color: var(--text-muted);
+}
+
+.typst-errors-close:hover {
+  color: var(--text-normal);
+}
+
+.typst-errors-empty {
+  padding: var(--size-4-6);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+
+.typst-errors-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.typst-errors-item {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+  padding: var(--size-4-2) var(--size-4-3);
+  cursor: pointer;
+  border-bottom: var(--border-width) solid var(--background-modifier-border);
+}
+
+.typst-errors-item:last-child {
+  border-bottom: none;
+}
+
+.typst-errors-item:hover {
+  background: var(--background-modifier-hover);
+}
+
+.typst-errors-item-icon {
+  flex-shrink: 0;
+  color: var(--text-error);
+}
+
+.typst-errors-item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2-1);
+}
+
+.typst-errors-item-msg {
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.typst-errors-item-location {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  font-family: var(--font-monospace);
+}
+
+/* ========================================================================== */
 /*                                  Settings                                  */
 /* ========================================================================== */
 
@@ -295,180 +411,6 @@
   pointer-events: auto;
   box-sizing: border-box;
   transform-origin: 0 0;
-}
-
-/* ============================ Annotation Layer ============================ */
-
-.typst-pdf-page .annotationLayer .linkAnnotation {
-  outline: none;
-}
-
-.typst-pdf-page .annotationLayer .linkAnnotation > a {
-  position: absolute;
-  font-size: 1em;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.typst-pdf-page .annotationLayer .linkAnnotation > a:hover {
-  opacity: 0.2;
-  background: rgba(255, 255, 0, 1);
-}
-
-/* ============================ Popup Annotations =========================== */
-
-.typst-pdf-page .annotationLayer .popup {
-  position: absolute;
-  max-width: 180px;
-  background-color: rgba(255, 255, 153, 1);
-  box-shadow: 0 2px 5px rgba(136, 136, 136, 1);
-  border-radius: 2px;
-  padding: 6px;
-  cursor: pointer;
-  font: message-box;
-  white-space: normal;
-  word-wrap: break-word;
-  pointer-events: auto;
-}
-
-.typst-pdf-page .annotationLayer .popup > * {
-  font-size: 9px;
-}
-
-.typst-pdf-page .annotationLayer .popup h1 {
-  display: inline-block;
-}
-
-/* =========================== Annotation Widgets =========================== */
-
-.typst-pdf-page .annotationLayer .textWidgetAnnotation input,
-.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea,
-.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select,
-.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button {
-  background-image: none;
-  background-color: rgba(0, 54, 255, 0.13);
-  border: 2px solid transparent;
-  box-sizing: border-box;
-  font: message-box;
-  font-size: 9px;
-  height: 100%;
-  margin: 0;
-  vertical-align: top;
-  width: 100%;
-}
-
-.typst-pdf-page .annotationLayer .textWidgetAnnotation input:required,
-.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:required,
-.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:required,
-.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:required {
-  outline: 1.5px solid red;
-}
-
-.typst-pdf-page .annotationLayer .textWidgetAnnotation input:disabled,
-.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:disabled,
-.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:disabled,
-.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:disabled {
-  background: none;
-  border: 2px solid transparent;
-  cursor: not-allowed;
-}
-
-.typst-pdf-page .annotationLayer .textWidgetAnnotation input:hover,
-.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:hover,
-.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:hover,
-.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:hover {
-  border: 2px solid rgba(0, 0, 0, 1);
-}
-
-.typst-pdf-page .annotationLayer .textWidgetAnnotation input:focus,
-.typst-pdf-page .annotationLayer .textWidgetAnnotation textarea:focus,
-.typst-pdf-page .annotationLayer .choiceWidgetAnnotation select:focus {
-  background: none;
-  border: 2px solid transparent;
-}
-
-.typst-pdf-page .annotationLayer .buttonWidgetAnnotation button:focus {
-  background: none;
-  border: 2px solid transparent;
-}
-
-.typst-pdf-page .annotationLayer .checkboxWidgetAnnotation input {
-  appearance: none;
-}
-
-.typst-pdf-page
-  .annotationLayer
-  .checkboxWidgetAnnotation
-  input:checked::before,
-.typst-pdf-page
-  .annotationLayer
-  .checkboxWidgetAnnotation
-  input:checked::after {
-  background-color: CanvasText;
-  content: "";
-  display: block;
-  position: absolute;
-}
-
-.typst-pdf-page
-  .annotationLayer
-  .checkboxWidgetAnnotation
-  input:checked::before {
-  height: 80%;
-  left: 45%;
-  width: 1px;
-  transform: rotate(45deg);
-}
-
-.typst-pdf-page
-  .annotationLayer
-  .checkboxWidgetAnnotation
-  input:checked::after {
-  height: 1px;
-  left: 20%;
-  top: 50%;
-  width: 50%;
-  transform: rotate(45deg);
-}
-
-.typst-pdf-page .annotationLayer .radioButtonWidgetAnnotation input {
-  appearance: none;
-}
-
-.typst-pdf-page
-  .annotationLayer
-  .radioButtonWidgetAnnotation
-  input:checked::before {
-  background-color: CanvasText;
-  content: "";
-  display: block;
-  position: absolute;
-  border-radius: 50%;
-  height: 50%;
-  left: 25%;
-  top: 25%;
-  width: 50%;
-}
-
-/* ======================= File Attachment Annotations ====================== */
-
-.typst-pdf-page .annotationLayer .fileAttachmentAnnotation .popupTriggerArea {
-  height: 100%;
-  width: 100%;
-}
-
-/* ========================== Highlight Annotations ========================= */
-
-.typst-pdf-page .annotationLayer .highlightAnnotation,
-.typst-pdf-page .annotationLayer .underlineAnnotation,
-.typst-pdf-page .annotationLayer .squigglyAnnotation,
-.typst-pdf-page .annotationLayer .strikeoutAnnotation {
-  cursor: pointer;
 }
 
 /* ================================ Stacking ================================ */

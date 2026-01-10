@@ -51,6 +51,14 @@ export class TypstEditor {
     }
   }
 
+  public goToLine(line: number, column: number = 1): void {
+    if (!this.monacoEditor) return;
+
+    this.monacoEditor.revealLineInCenter(line);
+    this.monacoEditor.setPosition({ lineNumber: line, column: column });
+    this.monacoEditor.focus();
+  }
+
   private createEditor(): void {
     this.container.empty();
     this.container.addClass("typst-monaco-editor-container");

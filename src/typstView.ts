@@ -5,6 +5,7 @@ import { PdfRenderer } from "./pdfRenderer";
 import { ViewActionBar } from "./ui/viewActionBar";
 import { EditorStateManager } from "./editorStateManager";
 import { CompilationManager, CompilationResult } from "./compilationManager";
+import { ErrorsDropdown, TypstError, parseTypstError } from "./ui/errorsPane";
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
@@ -17,6 +18,8 @@ export class TypstView extends TextFileView {
   private livePreviewActive: boolean = false;
   private compilationManager: CompilationManager;
   private pairedView: TypstView | null = null;
+  private currentErrors: TypstError[] = [];
+  private errorsDropdown: ErrorsDropdown | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: TypstForObsidian) {
     super(leaf);
@@ -77,9 +80,11 @@ export class TypstView extends TextFileView {
         viewActions,
         () => this.toggleMode(),
         () => this.exportToPdf(),
-        () => this.openSplitPreview()
+        () => this.openSplitPreview(),
+        (anchorEl: HTMLElement) => this.showErrorsPane(anchorEl)
       );
       this.actionBar.initialize(this.currentMode);
+      this.actionBar.updateErrorCount(this.currentErrors.length);
     }
   }
 
@@ -121,6 +126,32 @@ export class TypstView extends TextFileView {
       return;
     }
     this.typstEditor.decreaseHeadingLevel();
+  }
+
+  public showErrorsPane(anchorEl: HTMLElement): void {
+    if (this.errorsDropdown) {
+      this.errorsDropdown.close();
+      this.errorsDropdown = null;
+      return;
+    }
+
+    this.errorsDropdown = new ErrorsDropdown(
+      anchorEl,
+      this.currentErrors,
+      (line: number, column: number) => {
+        if (this.currentMode !== "source") {
+          this.toggleMode();
+        }
+        setTimeout(() => {
+          if (this.typstEditor) {
+            this.typstEditor.goToLine(line, column);
+          }
+        }, 100);
+      },
+      () => {
+        this.errorsDropdown = null;
+      }
+    );
   }
 
   public async exportToPdf(): Promise<void> {
@@ -288,17 +319,40 @@ export class TypstView extends TextFileView {
 
       if (this.livePreviewActive && this.plugin.settings.enableLivePreview) {
         const result = await this.plugin.compileToPdf(content, filePath);
+        this.clearErrors();
         return result;
       } else {
         const result = await this.plugin.compileToPdf(content, filePath);
+        this.clearErrors();
         return result;
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      new Notice("Failed to compile PDF. See console for details.");
       console.error("Compilation error:", errorMsg);
+
+      const parsedError = parseTypstError(errorMsg);
+      if (parsedError) {
+        this.currentErrors = [parsedError];
+      } else {
+        this.currentErrors = [
+          {
+            file: this.file?.path || "unknown",
+            line: 0,
+            column: 0,
+            errorLine: "",
+            message: errorMsg,
+          },
+        ];
+      }
+
+      this.actionBar?.updateErrorCount(this.currentErrors.length);
       return null;
     }
+  }
+
+  private clearErrors(): void {
+    this.currentErrors = [];
+    this.actionBar?.updateErrorCount(0);
   }
 
   async setViewData(data: string, clear: boolean): Promise<void> {
