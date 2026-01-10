@@ -294,9 +294,10 @@ export class TypstView extends TextFileView {
         return result;
       }
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
       new Notice("Failed to compile PDF. See console for details.");
-      console.error("PDF compilation failed:", error);
-      throw error;
+      console.error("Compilation error:", errorMsg);
+      return null;
     }
   }
 

@@ -97,7 +97,6 @@ export class CompilationManager extends Events {
       return pdfData;
     } catch (error) {
       this.trigger("compilation-error", error);
-      console.error("Compilation failed:", error);
       return null;
     } finally {
       this.isCompiling = false;
