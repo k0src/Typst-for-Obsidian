@@ -236,10 +236,18 @@ export class TypstView extends TextFileView {
         "compilation-complete",
         this.handleCompilationComplete.bind(this)
       );
+      this.compilationManager.on(
+        "compilation-error",
+        this.handleCompilationError.bind(this)
+      );
     } else {
       this.compilationManager.off(
         "compilation-complete",
         this.handleCompilationComplete.bind(this)
+      );
+      this.compilationManager.off(
+        "compilation-error",
+        this.handleCompilationError.bind(this)
       );
     }
   }
@@ -254,6 +262,42 @@ export class TypstView extends TextFileView {
   ): Promise<void> {
     if (this.currentMode === "reading" && this.pairedView) {
       await this.showReadingMode(result.pdfData);
+    }
+    if (this.currentMode === "source" && this.pairedView) {
+      this.clearErrors();
+    }
+  }
+
+  private handleCompilationError(error: any): void {
+    if (this.currentMode === "source") {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+
+      let lineOffset = 0;
+      if (this.plugin.settings.useDefaultLayoutFunctions) {
+        lineOffset =
+          (this.plugin.settings.customLayoutFunctions.match(/\n/g) || [])
+            .length + 1;
+      } else {
+        lineOffset = 1;
+      }
+
+      const parsedError = parseTypstError(errorMsg);
+      if (parsedError) {
+        parsedError.line = Math.max(1, parsedError.line - lineOffset);
+        this.currentErrors = [parsedError];
+      } else {
+        this.currentErrors = [
+          {
+            file: this.file?.path || "unknown",
+            line: 0,
+            column: 0,
+            errorLine: "",
+            message: errorMsg,
+          },
+        ];
+      }
+
+      this.actionBar?.updateErrorCount(this.currentErrors.length);
     }
   }
 
@@ -330,8 +374,18 @@ export class TypstView extends TextFileView {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error("Compilation error:", errorMsg);
 
+      let lineOffset = 0;
+      if (this.plugin.settings.useDefaultLayoutFunctions) {
+        lineOffset =
+          (this.plugin.settings.customLayoutFunctions.match(/\n/g) || [])
+            .length + 1;
+      } else {
+        lineOffset = 1;
+      }
+
       const parsedError = parseTypstError(errorMsg);
       if (parsedError) {
+        parsedError.line = Math.max(1, parsedError.line - lineOffset);
         this.currentErrors = [parsedError];
       } else {
         this.currentErrors = [
@@ -369,8 +423,10 @@ export class TypstView extends TextFileView {
     const pdfData = await this.compile();
 
     if (!pdfData) {
-      this.setMode("source");
-      this.showSourceMode();
+      if (!this.livePreviewActive) {
+        this.setMode("source");
+        this.showSourceMode();
+      }
     } else {
       await this.showReadingMode(pdfData);
     }

@@ -26,7 +26,7 @@ export class TypstSettingTab extends PluginSettingTab {
     new Setting(containerEl).setHeading().setName("Typst Settings");
 
     new Setting(containerEl)
-      .setName("Use default layout functions")
+      .setName("Use custom default layout functions")
       .setDesc(
         "Wraps editor content with default page, text, and styling functions."
       )
