@@ -188,9 +188,7 @@ npm run build:deploy
 
 ## Future Plans
 
-- [ ] **Implement incremental PDF rendering and proper editor-preview split view**
 - [ ] **Improve performance of PDF rendering**
-- [ ] **Polish PDF viewer, fix text layers, add annotation layers**
 - [ ] Finish Monaco snippet integration for autocomplete
 - [ ] Formatter for Typst code
 - [ ] Add support for jumping from PDF to source by clicking on text

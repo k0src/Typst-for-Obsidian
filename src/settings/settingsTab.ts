@@ -160,6 +160,54 @@ export class TypstSettingTab extends PluginSettingTab {
         })
       );
 
+    new Setting(containerEl).setHeading().setName("Live Preview");
+
+    new Setting(containerEl)
+      .setName("Enable live preview")
+      .setDesc(
+        "When editing in split-pane mode, automatically compile and update the preview with shorter debounce delay."
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.enableLivePreview)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.enableLivePreview = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Live preview debounce delay")
+      .setDesc(
+        "Milliseconds to wait after typing before compiling in live preview mode (100-2000ms)."
+      )
+      .addSlider((slider) =>
+        slider
+          .setLimits(100, 2000, 100)
+          .setValue(this.plugin.settings.livePreviewDebounce)
+          .setDynamicTooltip()
+          .onChange(async (value: number) => {
+            this.plugin.settings.livePreviewDebounce = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Normal compilation debounce delay")
+      .setDesc(
+        "Milliseconds to wait after typing before compiling in normal mode (500-3000ms)."
+      )
+      .addSlider((slider) =>
+        slider
+          .setLimits(500, 3000, 100)
+          .setValue(this.plugin.settings.normalDebounce)
+          .setDynamicTooltip()
+          .onChange(async (value: number) => {
+            this.plugin.settings.normalDebounce = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
     const syntaxHeading = new Setting(containerEl)
       .setHeading()
       .setName("Syntax Highlighting");

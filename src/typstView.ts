@@ -4,6 +4,7 @@ import TypstForObsidian from "./main";
 import { PdfRenderer } from "./pdfRenderer";
 import { ViewActionBar } from "./ui/viewActionBar";
 import { EditorStateManager } from "./editorStateManager";
+import { CompilationManager, CompilationResult } from "./compilationManager";
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
@@ -13,6 +14,9 @@ export class TypstView extends TextFileView {
   private pdfRenderer: PdfRenderer;
   private actionBar: ViewActionBar | null = null;
   private stateManager: EditorStateManager;
+  private livePreviewActive: boolean = false;
+  private compilationManager: CompilationManager;
+  private pairedView: TypstView | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: TypstForObsidian) {
     super(leaf);
@@ -20,6 +24,7 @@ export class TypstView extends TextFileView {
     this.currentMode = plugin.settings.defaultMode;
     this.pdfRenderer = new PdfRenderer();
     this.stateManager = new EditorStateManager();
+    this.compilationManager = new CompilationManager(plugin);
   }
 
   getViewType(): string {
@@ -55,6 +60,13 @@ export class TypstView extends TextFileView {
     this.cleanupEditor();
     this.actionBar?.destroy();
     this.stateManager.clear();
+    this.compilationManager.destroy();
+
+    if (this.pairedView) {
+      this.pairedView.clearPairedView();
+      this.pairedView = null;
+    }
+
     return super.onClose();
   }
 
@@ -64,7 +76,8 @@ export class TypstView extends TextFileView {
       this.actionBar = new ViewActionBar(
         viewActions,
         () => this.toggleMode(),
-        () => this.exportToPdf()
+        () => this.exportToPdf(),
+        () => this.openSplitPreview()
       );
       this.actionBar.initialize(this.currentMode);
     }
@@ -152,6 +165,67 @@ export class TypstView extends TextFileView {
     }
   }
 
+  public async openSplitPreview(): Promise<void> {
+    if (!this.file) {
+      new Notice("No file to preview");
+      return;
+    }
+
+    if (this.pairedView) {
+      this.app.workspace.setActiveLeaf(this.pairedView.leaf, { focus: true });
+      return;
+    }
+
+    const newLeaf = this.app.workspace.getLeaf("split");
+    await newLeaf.openFile(this.file);
+
+    const newView = newLeaf.view;
+    if (newView instanceof TypstView) {
+      this.pairedView = newView;
+      newView.pairedView = this;
+
+      this.setLivePreviewActive(true);
+      newView.setLivePreviewActive(true);
+
+      if (newView.getCurrentMode() === "source") {
+        await newView.toggleMode();
+      }
+
+      if (this.getCurrentMode() === "reading") {
+        await this.toggleMode();
+      }
+    }
+  }
+
+  public setLivePreviewActive(active: boolean): void {
+    this.livePreviewActive = active;
+
+    if (active) {
+      this.compilationManager.on(
+        "compilation-complete",
+        this.handleCompilationComplete.bind(this)
+      );
+    } else {
+      this.compilationManager.off(
+        "compilation-complete",
+        this.handleCompilationComplete.bind(this)
+      );
+    }
+  }
+
+  public clearPairedView(): void {
+    this.pairedView = null;
+    this.setLivePreviewActive(false);
+  }
+
+  private async handleCompilationComplete(
+    result: CompilationResult
+  ): Promise<void> {
+    if (this.currentMode === "reading" && this.pairedView) {
+      await this.showReadingMode(result.pdfData);
+    }
+  }
+
   public async toggleMode(): Promise<void> {
     if (this.currentMode === "source") {
       await this.switchToReadingMode();
@@ -211,8 +285,14 @@ export class TypstView extends TextFileView {
     const content = this.getViewData();
     try {
       const filePath = this.file?.path || "/main.typ";
-      const result = await this.plugin.compileToPdf(content, filePath);
-      return result;
+
+      if (this.livePreviewActive && this.plugin.settings.enableLivePreview) {
+        const result = await this.plugin.compileToPdf(content, filePath);
+        return result;
+      } else {
+        const result = await this.plugin.compileToPdf(content, filePath);
+        return result;
+      }
     } catch (error) {
       new Notice("Failed to compile PDF. See console for details.");
       console.error("PDF compilation failed:", error);
@@ -271,13 +351,30 @@ export class TypstView extends TextFileView {
       this.plugin,
       (content: string) => {
         this.fileContent = content;
-        this.requestSave();
+        this.handleContentChange(content);
       }
     );
 
     this.typstEditor.initialize(this.fileContent).catch((err) => {
       console.error("Failed to initialize Typst editor:", err);
     });
+  }
+
+  private handleContentChange(content: string): void {
+    this.requestSave();
+
+    if (
+      this.livePreviewActive &&
+      this.plugin.settings.enableLivePreview &&
+      this.file
+    ) {
+      const debounceDelay = this.plugin.settings.livePreviewDebounce;
+      this.compilationManager.scheduleCompile(
+        content,
+        this.file.path,
+        debounceDelay
+      );
+    }
   }
 
   private saveEditorState(): void {

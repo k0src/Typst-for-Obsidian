@@ -70,6 +70,9 @@ export interface TypstSettings {
   autoDownloadPackages: boolean;
   fontFamilies: string[];
   enableTextLayer: boolean;
+  enableLivePreview: boolean;
+  livePreviewDebounce: number;
+  normalDebounce: number;
   customSnippets: string;
   syntaxHighlightColors: SyntaxHighlightColors;
   useObsidianTextColor: boolean;
@@ -84,6 +87,9 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   fontFamilies: [],
   pdfLayoutFunctions: "",
   enableTextLayer: true,
+  enableLivePreview: true,
+  livePreviewDebounce: 500,
+  normalDebounce: 1000,
   useObsidianTextColor: false,
   useObsidianMonospaceFont: true,
   syntaxHighlightColors: {

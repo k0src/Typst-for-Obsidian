@@ -3,17 +3,20 @@ import { setIcon } from "obsidian";
 export class ViewActionBar {
   private modeIconContainer: HTMLElement | null = null;
   private exportButton: HTMLElement | null = null;
+  private splitPreviewButton: HTMLElement | null = null;
   private currentMode: "source" | "reading" = "source";
 
   constructor(
     private viewActions: Element,
     private onModeToggle: () => void,
-    private onExport: () => void
+    private onExport: () => void,
+    private onSplitPreview: () => void
   ) {}
 
   initialize(initialMode: "source" | "reading"): void {
     this.currentMode = initialMode;
     this.createModeToggleButton();
+    this.createSplitPreviewButton();
     this.createExportButton();
   }
 
@@ -26,6 +29,28 @@ export class ViewActionBar {
 
     this.updateModeIcon();
     this.viewActions.prepend(this.modeIconContainer);
+  }
+
+  private createSplitPreviewButton(): void {
+    this.splitPreviewButton = createDiv("clickable-icon");
+    this.splitPreviewButton.addClass("view-action");
+    this.splitPreviewButton.setAttribute(
+      "aria-label",
+      "Open live preview in split pane"
+    );
+    setIcon(this.splitPreviewButton, "columns-2");
+    this.splitPreviewButton.addEventListener("click", () => {
+      this.onSplitPreview();
+    });
+
+    if (this.modeIconContainer?.nextSibling) {
+      this.viewActions.insertBefore(
+        this.splitPreviewButton,
+        this.modeIconContainer.nextSibling
+      );
+    } else {
+      this.viewActions.appendChild(this.splitPreviewButton);
+    }
   }
 
   private createExportButton(): void {
@@ -74,6 +99,7 @@ export class ViewActionBar {
 
   destroy(): void {
     this.modeIconContainer?.remove();
+    this.splitPreviewButton?.remove();
     this.exportButton?.remove();
   }
 }
