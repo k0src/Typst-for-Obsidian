@@ -192,22 +192,6 @@ export class TypstSettingTab extends PluginSettingTab {
           })
       );
 
-    new Setting(containerEl)
-      .setName("Normal compilation debounce delay")
-      .setDesc(
-        "Milliseconds to wait after typing before compiling in normal mode (500-3000ms)."
-      )
-      .addSlider((slider) =>
-        slider
-          .setLimits(500, 3000, 100)
-          .setValue(this.plugin.settings.normalDebounce)
-          .setDynamicTooltip()
-          .onChange(async (value: number) => {
-            this.plugin.settings.normalDebounce = value;
-            await this.plugin.saveSettings();
-          })
-      );
-
     const syntaxHeading = new Setting(containerEl)
       .setHeading()
       .setName("Syntax Highlighting");

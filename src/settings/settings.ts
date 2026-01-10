@@ -72,7 +72,6 @@ export interface TypstSettings {
   enableTextLayer: boolean;
   enableLivePreview: boolean;
   livePreviewDebounce: number;
-  normalDebounce: number;
   customSnippets: string;
   syntaxHighlightColors: SyntaxHighlightColors;
   useObsidianTextColor: boolean;
@@ -89,7 +88,6 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   enableTextLayer: true,
   enableLivePreview: true,
   livePreviewDebounce: 500,
-  normalDebounce: 1000,
   useObsidianTextColor: false,
   useObsidianMonospaceFont: true,
   syntaxHighlightColors: {
