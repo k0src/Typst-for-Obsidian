@@ -25,7 +25,7 @@ export class TypstEditor {
   constructor(
     container: HTMLElement,
     plugin: TypstForObsidian,
-    onContentChange?: (content: string) => void
+    onContentChange?: (content: string) => void,
   ) {
     this.container = container;
     this.plugin = plugin;
@@ -100,6 +100,7 @@ export class TypstEditor {
       autoIndent: "full",
       formatOnType: true,
       formatOnPaste: true,
+      contextmenu: false,
     };
 
     this.monacoEditor = monaco.editor.create(this.container, editorOptions);
@@ -138,9 +139,14 @@ export class TypstEditor {
             }
           }
         } catch (err) {
-          console.error("Failed to read clipboard:", err);
+          console.warn("Failed to read clipboard:", err);
+          this.monacoEditor?.trigger(
+            "keyboard",
+            "editor.action.clipboardPasteAction",
+            null,
+          );
         }
-      }
+      },
     );
 
     this.monacoEditor.onKeyDown((e) => {
@@ -182,7 +188,7 @@ export class TypstEditor {
                   position.lineNumber,
                   position.column,
                   position.lineNumber,
-                  position.column
+                  position.column,
                 ),
                 text: "\n" + currentIndent + indentUnit + "\n" + currentIndent,
               },
@@ -211,7 +217,7 @@ export class TypstEditor {
                   position.lineNumber,
                   position.column,
                   position.lineNumber,
-                  position.column
+                  position.column,
                 ),
                 text: "\n" + currentIndent + indentUnit,
               },
@@ -266,7 +272,7 @@ export class TypstEditor {
 
           return { suggestions };
         },
-      }
+      },
     );
   }
 
@@ -346,7 +352,7 @@ export class TypstEditor {
 
   private getWordAtPosition(
     model: monaco.editor.ITextModel,
-    position: monaco.Position
+    position: monaco.Position,
   ): monaco.Range | null {
     const line = model.getLineContent(position.lineNumber);
     const wordRegex = /[a-zA-Z0-9]+/g;
@@ -361,7 +367,7 @@ export class TypstEditor {
           position.lineNumber,
           start,
           position.lineNumber,
-          end
+          end,
         );
       }
     }
@@ -374,7 +380,7 @@ export class TypstEditor {
     from: monaco.Position,
     to: monaco.Position,
     prefix: string,
-    suffix: string
+    suffix: string,
   ): MonacoLineEdit[] {
     const edits: MonacoLineEdit[] = [];
 
@@ -392,7 +398,7 @@ export class TypstEditor {
         if (startCol >= prefix.length) {
           const beforeText = lineText.substring(
             startCol - prefix.length,
-            startCol
+            startCol,
           );
           if (beforeText === prefix) {
             startCol -= prefix.length;
@@ -416,7 +422,7 @@ export class TypstEditor {
 
       const originalSelectedPart = lineText.substring(
         originalStartCol,
-        originalEndCol
+        originalEndCol,
       );
       const originalLeadingSpaces =
         originalSelectedPart.length - originalSelectedPart.trimStart().length;
@@ -440,9 +446,9 @@ export class TypstEditor {
         const formattedRegex = new RegExp(
           `${prefix.replace(
             /[.*+?^${}()|[\]\\]/g,
-            "\\$&"
+            "\\$&",
           )}(.+?)${suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-          "g"
+          "g",
         );
         let match;
         let minStart = trimmedFrom;
@@ -499,11 +505,11 @@ export class TypstEditor {
     if (selectedText) {
       const from = new monaco.Position(
         selection.startLineNumber,
-        selection.startColumn
+        selection.startColumn,
       );
       const to = new monaco.Position(
         selection.endLineNumber,
-        selection.endColumn
+        selection.endColumn,
       );
       const edits = this.getLineEdits(model, from, to, prefix, suffix);
 
@@ -518,7 +524,7 @@ export class TypstEditor {
           edit.line,
           edit.trimmedFrom,
           edit.line,
-          edit.trimmedTo
+          edit.trimmedTo,
         );
 
         if (shouldFormat) {
@@ -529,9 +535,9 @@ export class TypstEditor {
             const formattedPartRegex = new RegExp(
               `${prefix.replace(
                 /[.*+?^${}()|[\]\\]/g,
-                "\\$&"
+                "\\$&",
               )}(.+?)${suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-              "g"
+              "g",
             );
             cleanText = cleanText.replace(formattedPartRegex, "$1");
 
@@ -547,7 +553,7 @@ export class TypstEditor {
           if (edit.isFormatted) {
             const unwrapped = edit.trimmedText.substring(
               prefix.length,
-              edit.trimmedText.length - suffix.length
+              edit.trimmedText.length - suffix.length,
             );
             this.monacoEditor.executeEdits("typst-format", [
               {
@@ -586,9 +592,9 @@ export class TypstEditor {
           const formattedPartRegex = new RegExp(
             `${prefix.replace(
               /[.*+?^${}()|[\]\\]/g,
-              "\\$&"
+              "\\$&",
             )}(.+?)${suffix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-            "g"
+            "g",
           );
           cleanText = cleanText.replace(formattedPartRegex, "$1");
           const lastOffset = lastEdit.originalTo - lastEdit.trimmedFrom;
@@ -611,7 +617,7 @@ export class TypstEditor {
           const lastOffset = lastEdit.originalTo - lastEdit.trimmedFrom;
           const cappedOffset = Math.min(
             lastOffset,
-            lastEdit.trimmedText.length - suffix.length
+            lastEdit.trimmedText.length - suffix.length,
           );
           newToColumn =
             lastEdit.trimmedFrom + Math.max(0, cappedOffset - prefix.length);
@@ -624,7 +630,7 @@ export class TypstEditor {
         firstEdit.line,
         newFromColumn,
         lastEdit.line,
-        newToColumn
+        newToColumn,
       );
 
       this.monacoEditor.setSelection(newSelection);
@@ -638,11 +644,11 @@ export class TypstEditor {
         const beforeStart = Math.max(1, wordRange.startColumn - prefix.length);
         const afterEnd = Math.min(
           line.length + 1,
-          wordRange.endColumn + suffix.length
+          wordRange.endColumn + suffix.length,
         );
         const before = line.substring(
           beforeStart - 1,
-          wordRange.startColumn - 1
+          wordRange.startColumn - 1,
         );
         const after = line.substring(wordRange.endColumn - 1, afterEnd - 1);
 
@@ -653,7 +659,7 @@ export class TypstEditor {
             position.lineNumber,
             beforeStart,
             position.lineNumber,
-            afterEnd
+            afterEnd,
           );
 
           this.monacoEditor.executeEdits("typst-format", [
@@ -666,7 +672,7 @@ export class TypstEditor {
           const cursorOffset = position.column - wordRange.startColumn;
           const newColumn = beforeStart + cursorOffset;
           this.monacoEditor.setPosition(
-            new monaco.Position(position.lineNumber, newColumn)
+            new monaco.Position(position.lineNumber, newColumn),
           );
         } else {
           const wrapped = `${prefix}${word}${suffix}`;
@@ -683,7 +689,7 @@ export class TypstEditor {
             wordRange.startColumn + cursorOffset + prefix.length;
 
           this.monacoEditor.setPosition(
-            new monaco.Position(position.lineNumber, newColumn)
+            new monaco.Position(position.lineNumber, newColumn),
           );
         }
       } else {
@@ -693,7 +699,7 @@ export class TypstEditor {
               position.lineNumber,
               position.column,
               position.lineNumber,
-              position.column
+              position.column,
             ),
             text: `${prefix}${suffix}`,
           },
@@ -702,8 +708,8 @@ export class TypstEditor {
         this.monacoEditor.setPosition(
           new monaco.Position(
             position.lineNumber,
-            position.column + prefix.length
-          )
+            position.column + prefix.length,
+          ),
         );
       }
     }
@@ -730,7 +736,7 @@ export class TypstEditor {
         lineNumber,
         1,
         lineNumber,
-        lineContent.length + 1
+        lineContent.length + 1,
       );
       this.monacoEditor.executeEdits("typst-heading", [
         {
@@ -765,7 +771,7 @@ export class TypstEditor {
           lineNumber,
           1,
           lineNumber,
-          lineContent.length + 1
+          lineContent.length + 1,
         );
         this.monacoEditor.executeEdits("typst-heading", [
           {

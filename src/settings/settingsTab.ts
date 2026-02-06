@@ -28,7 +28,7 @@ export class TypstSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use custom default layout functions")
       .setDesc(
-        "Wraps editor content with default page, text, and styling functions."
+        "Wraps editor content with default page, text, and styling functions.",
       )
       .addToggle((toggle) =>
         toggle
@@ -37,7 +37,7 @@ export class TypstSettingTab extends PluginSettingTab {
             this.plugin.settings.useDefaultLayoutFunctions = value;
             await this.plugin.saveSettings();
             this.display();
-          })
+          }),
       );
 
     if (this.plugin.settings.useDefaultLayoutFunctions) {
@@ -47,9 +47,9 @@ export class TypstSettingTab extends PluginSettingTab {
           button.setButtonText("Edit").onClick(() => {
             new SettingsModal(
               this.app,
-              getCustomLayoutFunctionsConfig(this.plugin)
+              getCustomLayoutFunctionsConfig(this.plugin),
             ).open();
-          })
+          }),
         );
     }
 
@@ -63,7 +63,7 @@ export class TypstSettingTab extends PluginSettingTab {
             this.plugin.settings.usePdfLayoutFunctions = value;
             await this.plugin.saveSettings();
             this.display();
-          })
+          }),
       );
 
     if (this.plugin.settings.usePdfLayoutFunctions) {
@@ -73,9 +73,9 @@ export class TypstSettingTab extends PluginSettingTab {
           button.setButtonText("Edit").onClick(() => {
             new SettingsModal(
               this.app,
-              getPdfLayoutFunctionsConfig(this.plugin)
+              getPdfLayoutFunctionsConfig(this.plugin),
             ).open();
-          })
+          }),
         );
     }
 
@@ -86,15 +86,15 @@ export class TypstSettingTab extends PluginSettingTab {
         button.setButtonText("Edit").onClick(() => {
           new SettingsModal(
             this.app,
-            getFontFamiliesConfig(this.plugin)
+            getFontFamiliesConfig(this.plugin),
           ).open();
-        })
+        }),
       );
 
     new Setting(containerEl)
       .setName("Enable text layer")
       .setDesc(
-        "Enable text selection and link clicking in PDF preview. Disable for better performance if not needed."
+        "Enable text selection and link clicking in PDF preview. Disable for better performance if not needed.",
       )
       .addToggle((toggle) =>
         toggle
@@ -102,7 +102,21 @@ export class TypstSettingTab extends PluginSettingTab {
           .onChange(async (value: boolean) => {
             this.plugin.settings.enableTextLayer = value;
             await this.plugin.saveSettings();
-          })
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName("Auto-download packages")
+      .setDesc(
+        "Automatically download Typst packages from the Typst Universe when compiling.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.autoDownloadPackages)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.autoDownloadPackages = value;
+            await this.plugin.saveSettings();
+          }),
       );
 
     new Setting(containerEl).setHeading().setName("Editor Settings");
@@ -110,7 +124,7 @@ export class TypstSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Default file mode")
       .setDesc(
-        "Choose whether Typst files open in source or reading mode by default"
+        "Choose whether Typst files open in source or reading mode by default",
       )
       .addDropdown((dropdown) =>
         dropdown
@@ -120,13 +134,13 @@ export class TypstSettingTab extends PluginSettingTab {
           .onChange(async (value: "source" | "reading") => {
             this.plugin.settings.defaultMode = value;
             await this.plugin.saveSettings();
-          })
+          }),
       );
 
     new Setting(containerEl)
       .setName("Use Obsidian monospace font")
       .setDesc(
-        "Use Obsidian theme's monospace font in the editor. Disable to use the editor's default font."
+        "Use Obsidian theme's monospace font in the editor. Disable to use the editor's default font.",
       )
       .addToggle((toggle) =>
         toggle
@@ -145,7 +159,7 @@ export class TypstSettingTab extends PluginSettingTab {
                 view.showSourceMode?.();
               }
             });
-          })
+          }),
       );
 
     new Setting(containerEl)
@@ -155,9 +169,9 @@ export class TypstSettingTab extends PluginSettingTab {
         button.setButtonText("Edit").onClick(() => {
           new SettingsModal(
             this.app,
-            getCustomSnippetsConfig(this.plugin)
+            getCustomSnippetsConfig(this.plugin),
           ).open();
-        })
+        }),
       );
 
     new Setting(containerEl).setHeading().setName("Live Preview");
@@ -165,7 +179,7 @@ export class TypstSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Enable live preview")
       .setDesc(
-        "When editing in split-pane mode, automatically compile and update the preview with shorter debounce delay."
+        "When editing in split-pane mode, automatically compile and update the preview with shorter debounce delay.",
       )
       .addToggle((toggle) =>
         toggle
@@ -173,13 +187,13 @@ export class TypstSettingTab extends PluginSettingTab {
           .onChange(async (value: boolean) => {
             this.plugin.settings.enableLivePreview = value;
             await this.plugin.saveSettings();
-          })
+          }),
       );
 
     new Setting(containerEl)
       .setName("Live preview debounce delay")
       .setDesc(
-        "Milliseconds to wait after typing before compiling in live preview mode (100-2000ms)."
+        "Milliseconds to wait after typing before compiling in live preview mode (100-2000ms).",
       )
       .addSlider((slider) =>
         slider
@@ -189,7 +203,7 @@ export class TypstSettingTab extends PluginSettingTab {
           .onChange(async (value: number) => {
             this.plugin.settings.livePreviewDebounce = value;
             await this.plugin.saveSettings();
-          })
+          }),
       );
 
     const syntaxHeading = new Setting(containerEl)
@@ -208,8 +222,8 @@ export class TypstSettingTab extends PluginSettingTab {
         getImportColorsConfig(
           this.plugin,
           this.setSyntaxHighlightingColors.bind(this),
-          this.display.bind(this)
-        )
+          this.display.bind(this),
+        ),
       ).open();
     });
 
@@ -226,7 +240,7 @@ export class TypstSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use theme text color")
       .setDesc(
-        "Use theme's text color for default text instead of custom color"
+        "Use theme's text color for default text instead of custom color",
       )
       .addToggle((toggle) =>
         toggle
@@ -235,27 +249,27 @@ export class TypstSettingTab extends PluginSettingTab {
             this.plugin.settings.useObsidianTextColor = value;
             await this.plugin.saveSettings();
             this.display();
-          })
+          }),
       );
 
     this.addSyntaxColorSection(
       containerEl,
       "Dark Theme Colors",
       "dark",
-      this.plugin.settings.useObsidianTextColor
+      this.plugin.settings.useObsidianTextColor,
     );
 
     this.addSyntaxColorSection(
       containerEl,
       "Light Theme Colors",
       "light",
-      this.plugin.settings.useObsidianTextColor
+      this.plugin.settings.useObsidianTextColor,
     );
   }
 
   private setSyntaxHighlightingColors(
     theme: "dark" | "light",
-    colors: SyntaxHighlightColors["dark"] | SyntaxHighlightColors["light"]
+    colors: SyntaxHighlightColors["dark"] | SyntaxHighlightColors["light"],
   ): void {
     this.plugin.settings.syntaxHighlightColors[theme] = { ...colors };
   }
@@ -264,7 +278,7 @@ export class TypstSettingTab extends PluginSettingTab {
     containerEl: HTMLElement,
     title: string,
     theme: "dark" | "light",
-    disableDefaultText: boolean
+    disableDefaultText: boolean,
   ): void {
     const details = containerEl.createEl("details");
     const summary = details.createEl("summary");
@@ -283,7 +297,7 @@ export class TypstSettingTab extends PluginSettingTab {
       e.stopPropagation();
       this.setSyntaxHighlightingColors(
         theme,
-        DEFAULT_SETTINGS.syntaxHighlightColors[theme]
+        DEFAULT_SETTINGS.syntaxHighlightColors[theme],
       );
       await this.plugin.saveSettings();
       this.display();
