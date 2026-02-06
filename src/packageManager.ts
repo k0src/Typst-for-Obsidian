@@ -2,6 +2,7 @@ import { Platform, normalizePath, requestUrl } from "obsidian";
 import type TypstPlugin from "./main";
 import { decompressSync } from "fflate";
 import { TYPST_PACKAGES_URL } from "./util/constants";
+import { DownloadPackageModal } from "./ui/downloadPackageModal";
 // @ts-ignore
 import untar from "js-untar";
 
@@ -34,26 +35,56 @@ export class PackageManager {
       return folder;
     }
 
-    if (
-      spec.startsWith("preview") &&
-      this.plugin.settings.autoDownloadPackages
-    ) {
+    if (spec.startsWith("preview")) {
       const [_namespace, name, version] = spec.split("/");
-      try {
-        await this.fetchPackage(folder, name, version);
-        return folder;
-      } catch (e) {
-        console.error(e);
-        throw new Error(`Failed to download package ${spec}`);
+
+      if (this.plugin.settings.autoDownloadPackages) {
+        try {
+          await this.fetchPackage(folder, name, version);
+          return folder;
+        } catch (e) {
+          console.error(e);
+          throw new Error(`Failed to download package ${spec}`);
+        }
+      } else {
+        return await this.promptPackageDownload(folder, name, version, spec);
       }
     }
+
     throw new Error(`Package not found: ${spec}`);
+  }
+
+  private async promptPackageDownload(
+    folder: string,
+    name: string,
+    version: string,
+    spec: string,
+  ): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const modal = new DownloadPackageModal(
+        this.plugin.app,
+        name,
+        async () => {
+          try {
+            await this.fetchPackage(folder, name, version);
+            resolve(folder);
+          } catch (e) {
+            console.error(e);
+            reject(new Error(`Failed to download package ${spec}`));
+          }
+        },
+        () => {
+          reject(new Error(`Package download cancelled: ${spec}`));
+        },
+      );
+      modal.open();
+    });
   }
 
   private async fetchPackage(
     folder: string,
     name: string,
-    version: string
+    version: string,
   ): Promise<void> {
     const url = `${TYPST_PACKAGES_URL}/${name}-${version}.tar.gz`;
     const response = await requestUrl({ url });
@@ -70,7 +101,7 @@ export class PackageManager {
       if (file.type === "0") {
         await this.plugin.app.vault.adapter.writeBinary(
           folder + file.name,
-          file.buffer
+          file.buffer,
         );
       }
     });
@@ -101,11 +132,11 @@ export class PackageManager {
         }
         return buffer.buffer.slice(
           buffer.byteOffset,
-          buffer.byteOffset + buffer.byteLength
+          buffer.byteOffset + buffer.byteLength,
         );
       } else {
         return await this.plugin.app.vault.adapter.readBinary(
-          normalizePath(path)
+          normalizePath(path),
         );
       }
     } catch (error) {
