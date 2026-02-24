@@ -186,12 +186,16 @@ TARGET_DIR="path/to/your-vault/.obsidian/plugins/typst-for-obsidian"
 npm run build:deploy
 ```
 
-## Future Plans
+## Future Plans/Issues to Fix
 
 - [ ] **Improve performance of PDF rendering**
 - [ ] Add "New Typst File" to context menu
 - [ ] Open PDF in split pane
 - [ ] Auto-export PDF on...
+- [ ] Default folder for `.typ` files
+- [ ] Fix color picker showing up for some `#` function calls
+- [ ] Fix problems show up on wrong side of split pane
+- [ ] Fix pasting
 - [ ] Open in external editor
 - [ ] Finish Monaco snippet integration for autocomplete
 - [ ] Formatter for Typst code
