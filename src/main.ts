@@ -15,7 +15,7 @@ import { WorkerRequest } from "./types";
 import {
   setPluginInstance,
   resetRegistry,
-  setupTypstTokensProvider,
+  ensureLanguageRegistered,
 } from "./grammar/typstLanguage";
 import { setThemeColors } from "./grammar/typstTheme";
 import "monaco-editor/min/vs/editor/editor.main.css";
@@ -50,7 +50,7 @@ export default class TypstForObsidian extends Plugin {
     this.compilerWorker = new CompilerWorker() as Worker;
     this.fontManager = new FontManager(
       this.compilerWorker,
-      this.settings.fontFamilies
+      this.settings.fontFamilies,
     );
 
     if (!(await this.app.vault.adapter.exists(this.wasmPath))) {
@@ -70,7 +70,7 @@ export default class TypstForObsidian extends Plugin {
         wasm: URL.createObjectURL(
           new Blob([await this.app.vault.adapter.readBinary(this.wasmPath)], {
             type: "application/wasm",
-          })
+          }),
         ),
         // @ts-ignore
         basePath: this.app.vault.adapter.basePath,
@@ -106,14 +106,14 @@ export default class TypstForObsidian extends Plugin {
     this.registerEvent(
       this.app.workspace.on("css-change", async () => {
         await this.onThemeChange();
-      })
+      }),
     );
   }
 
   async reloadFonts(): Promise<void> {
     this.fontManager = new FontManager(
       this.compilerWorker,
-      this.settings.fontFamilies
+      this.settings.fontFamilies,
     );
     await this.fontManager.loadFonts(this.isWorkerReady);
   }
@@ -121,7 +121,7 @@ export default class TypstForObsidian extends Plugin {
   private async resetSyntaxHighlighting() {
     const isDark = document.body.classList.contains("theme-dark");
     resetRegistry();
-    await setupTypstTokensProvider(isDark);
+    await ensureLanguageRegistered(isDark);
   }
 
   private async onThemeChange() {
@@ -185,9 +185,8 @@ export default class TypstForObsidian extends Plugin {
       const onigSourcePath =
         this.pluginPath + "vscode-oniguruma/release/onig.wasm";
       if (await this.app.vault.adapter.exists(onigSourcePath)) {
-        const wasmData = await this.app.vault.adapter.readBinary(
-          onigSourcePath
-        );
+        const wasmData =
+          await this.app.vault.adapter.readBinary(onigSourcePath);
         await this.app.vault.adapter.writeBinary(onigWasmPath, wasmData);
         return;
       }
@@ -219,7 +218,7 @@ export default class TypstForObsidian extends Plugin {
   async compileToPdf(
     source: string,
     path: string = "/main.typ",
-    compileType: "internal" | "export" = "internal"
+    compileType: "internal" | "export" = "internal",
   ): Promise<Uint8Array> {
     let finalSource = source;
 
@@ -304,7 +303,7 @@ export default class TypstForObsidian extends Plugin {
 
       if (actualPath.startsWith("@")) {
         const text = await this.packageManager.preparePackage(
-          actualPath.slice(1)
+          actualPath.slice(1),
         );
         if (text) {
           const encoded = this.textEncoder.encode(text);
@@ -319,7 +318,7 @@ export default class TypstForObsidian extends Plugin {
           const dataView = new Uint8Array(
             wbuffer.buffer,
             8,
-            encoded.byteLength
+            encoded.byteLength,
           );
           dataView.set(encoded);
 
@@ -357,7 +356,7 @@ export default class TypstForObsidian extends Plugin {
           const dataView = new Uint8Array(
             wbuffer.buffer,
             8,
-            encoded.byteLength
+            encoded.byteLength,
           );
           dataView.set(encoded);
 
