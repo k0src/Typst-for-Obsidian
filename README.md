@@ -189,6 +189,10 @@ npm run build:deploy
 ## Future Plans
 
 - [ ] **Improve performance of PDF rendering**
+- [ ] Add "New Typst File" to context menu
+- [ ] Open PDF in split pane
+- [ ] Auto-export PDF on...
+- [ ] Open in external editor
 - [ ] Finish Monaco snippet integration for autocomplete
 - [ ] Formatter for Typst code
 - [ ] Add support for jumping from PDF to source by clicking on text
