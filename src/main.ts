@@ -1,4 +1,13 @@
-import { Plugin, addIcon, Notice, Platform, requestUrl } from "obsidian";
+import {
+  Plugin,
+  addIcon,
+  Notice,
+  Platform,
+  requestUrl,
+  TFolder,
+  TFile,
+  normalizePath,
+} from "obsidian";
 import { TypstView } from "./typstView";
 import { registerCommands } from "./settings/commands";
 import { TypstIcon, pluginId } from "./util/typstUtils";
@@ -106,6 +115,48 @@ export default class TypstForObsidian extends Plugin {
     this.registerEvent(
       this.app.workspace.on("css-change", async () => {
         await this.onThemeChange();
+      }),
+    );
+
+    this.registerEvent(
+      this.app.workspace.on("file-menu", (menu, file, source) => {
+        if (
+          source === "file-explorer-context-menu" ||
+          source === "more-options"
+        ) {
+          menu.addItem((item) => {
+            item
+              .setTitle("New Typst file")
+              .setIcon("typst-file")
+              .setSection("action-primary")
+              .onClick(async () => {
+                const folder =
+                  file instanceof TFolder
+                    ? file
+                    : file instanceof TFile
+                      ? file.parent
+                      : this.app.vault.getRoot();
+                if (!folder) return;
+
+                const baseName = "Untitled";
+                let fileName = `${baseName}.typ`;
+                let counter = 1;
+                while (
+                  this.app.vault.getAbstractFileByPath(
+                    normalizePath(`${folder.path}/${fileName}`),
+                  )
+                ) {
+                  fileName = `${baseName} ${counter}.typ`;
+                  counter++;
+                }
+
+                const fullPath = normalizePath(`${folder.path}/${fileName}`);
+                const newFile = await this.app.vault.create(fullPath, "");
+                const leaf = this.app.workspace.getLeaf(false);
+                await leaf.openFile(newFile);
+              });
+          });
+        }
       }),
     );
   }

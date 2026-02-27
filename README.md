@@ -189,9 +189,10 @@ npm run build:deploy
 ## Future Plans/Issues to Fix
 
 - [ ] **Improve performance of PDF rendering**
-- [ ] Add "New Typst File" to context menu
+- [x] Add "New Typst File" to context menu
 - [ ] Turn off live preview button when live preview is disabled
-- [ ] Open PDF in split pane
+- [ ] Open live preview in split pane hotkey
+- [ ] Open PDF in split pane button + hotkey
 - [ ] Auto-export PDF on...
 - [ ] Default folder for `.typ` files
 - [ ] Fix color picker showing up for some `#` function calls
