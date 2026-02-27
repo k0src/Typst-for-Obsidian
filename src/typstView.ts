@@ -1,4 +1,4 @@
-import { TextFileView, WorkspaceLeaf, Notice } from "obsidian";
+import { TextFileView, WorkspaceLeaf, Notice, normalizePath } from "obsidian";
 import { TypstEditor } from "./typstEditor";
 import TypstForObsidian from "./main";
 import { PdfRenderer } from "./pdfRenderer";
@@ -176,10 +176,21 @@ export class TypstView extends TextFileView {
         return;
       }
 
-      const folderPath = filePath.substring(0, filePath.lastIndexOf("/"));
       const baseName = this.file.basename.replace(/\.typ$/, "");
       const pdfFileName = `${baseName}.pdf`;
-      const pdfPath = folderPath ? `${folderPath}/${pdfFileName}` : pdfFileName;
+
+      let pdfPath: string;
+      const exportPath = this.plugin.settings.pdfExportPath;
+      if (exportPath) {
+        const normalizedExportPath = normalizePath(exportPath);
+        if (!(await this.app.vault.adapter.exists(normalizedExportPath))) {
+          await this.app.vault.adapter.mkdir(normalizedExportPath);
+        }
+        pdfPath = normalizePath(`${normalizedExportPath}/${pdfFileName}`);
+      } else {
+        const folderPath = filePath.substring(0, filePath.lastIndexOf("/"));
+        pdfPath = folderPath ? `${folderPath}/${pdfFileName}` : pdfFileName;
+      }
 
       const arrayBuffer = pdfData.buffer.slice(
         pdfData.byteOffset,
@@ -192,7 +203,9 @@ export class TypstView extends TextFileView {
         await this.app.vault.createBinary(pdfPath, arrayBuffer);
       }
 
-      new Notice(`PDF exported to: ${pdfPath}`);
+      if (!this.plugin.settings.suppressPdfExportNotice) {
+        new Notice(`PDF exported to: ${pdfPath}`);
+      }
     } catch (error) {
       new Notice("Failed to export PDF. See console for details.");
       console.error("Failed to export PDF:", error);

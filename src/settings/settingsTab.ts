@@ -121,6 +121,33 @@ export class TypstSettingTab extends PluginSettingTab {
           }),
       );
 
+    new Setting(containerEl)
+      .setName("Suppress PDF export notice")
+      .setDesc("Hide the notification shown after exporting a PDF.")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.suppressPdfExportNotice)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.suppressPdfExportNotice = value;
+            await this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName("Default PDF export location")
+      .setDesc(
+        "Folder path in vault to export PDFs to. Leave blank to export in the same directory as the .typ file.",
+      )
+      .addText((text) =>
+        text
+          .setPlaceholder("e.g. exports/pdf")
+          .setValue(this.plugin.settings.pdfExportPath)
+          .onChange(async (value: string) => {
+            this.plugin.settings.pdfExportPath = value.trim();
+            await this.plugin.saveSettings();
+          }),
+      );
+
     new Setting(containerEl).setHeading().setName("Editor Settings");
 
     new Setting(containerEl)

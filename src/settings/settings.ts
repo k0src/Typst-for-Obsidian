@@ -70,6 +70,8 @@ export interface TypstSettings {
   autoDownloadPackages: boolean;
   fontFamilies: string[];
   enableTextLayer: boolean;
+  suppressPdfExportNotice: boolean;
+  pdfExportPath: string;
   enableLivePreview: boolean;
   livePreviewDebounce: number;
   customSnippets: string;
@@ -86,6 +88,8 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   fontFamilies: [],
   pdfLayoutFunctions: "",
   enableTextLayer: true,
+  suppressPdfExportNotice: false,
+  pdfExportPath: "",
   enableLivePreview: true,
   livePreviewDebounce: 500,
   useObsidianTextColor: false,
