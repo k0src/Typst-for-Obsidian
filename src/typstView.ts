@@ -1,4 +1,10 @@
-import { TextFileView, WorkspaceLeaf, Notice, normalizePath, TFile } from "obsidian";
+import {
+  TextFileView,
+  WorkspaceLeaf,
+  Notice,
+  normalizePath,
+  TFile,
+} from "obsidian";
 import { TypstEditor } from "./typstEditor";
 import TypstForObsidian from "./main";
 import { PdfRenderer } from "./pdfRenderer";
@@ -231,18 +237,22 @@ export class TypstView extends TextFileView {
     if (!(pdfFile instanceof TFile)) return;
 
     const activeLeaf = this.app.workspace.getLeaf(false);
-    let alreadyOpen = false;
+    const activeParent = activeLeaf.parent;
+
+    let pdfLeafInOtherGroup: WorkspaceLeaf | null = null;
     this.app.workspace.iterateAllLeaves((leaf) => {
       if (
-        leaf !== activeLeaf &&
+        leaf.parent !== activeParent &&
         (leaf.view as any)?.file instanceof TFile &&
         (leaf.view as any).file.path === pdfPath
       ) {
-        alreadyOpen = true;
+        pdfLeafInOtherGroup = leaf;
       }
     });
 
-    if (!alreadyOpen) {
+    if (pdfLeafInOtherGroup) {
+      this.app.workspace.setActiveLeaf(pdfLeafInOtherGroup, { focus: false });
+    } else {
       const newLeaf = this.app.workspace.getLeaf("split");
       await newLeaf.openFile(pdfFile);
     }
