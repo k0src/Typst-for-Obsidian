@@ -194,14 +194,13 @@ npm run build:deploy
 - [x] Open live preview in split pane hotkey
 - [ ] Open PDF in split pane button + hotkey
 - [ ] Auto-export PDF on...
-- [ ] Default folder for `.typ` files
 - [ ] Fix color picker showing up for some `#` function calls
 - [ ] Fix problems show up on wrong side of split pane
 - [ ] Fix pasting
 - [ ] Open in external editor
-- [ ] Finish Monaco snippet integration for autocomplete
 - [ ] Formatter for Typst code
-- [ ] Add support for jumping from PDF to source by clicking on text
+- [ ] Tinymist LSP support
+- [ ] Add support for jumping from preview/PDF to source by clicking on text
 - [ ] Add backlink support in PDF preview
 - [ ] Support for more template variables
 - [ ] Improve error handling and reporting
