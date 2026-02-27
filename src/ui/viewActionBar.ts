@@ -13,15 +13,20 @@ export class ViewActionBar {
     private onModeToggle: () => void,
     private onExport: () => void,
     private onSplitPreview: () => void,
-    private onShowErrors: (anchorEl: HTMLElement) => void
+    private onShowErrors: (anchorEl: HTMLElement) => void,
   ) {}
 
-  initialize(initialMode: "source" | "reading"): void {
+  initialize(
+    initialMode: "source" | "reading",
+    enableLivePreview: boolean = true,
+  ): void {
     this.currentMode = initialMode;
     this.createModeToggleButton();
-    this.createSplitPreviewButton();
+    if (enableLivePreview) {
+      this.createSplitPreviewButton();
+    }
     this.createExportButton();
-    this.createErrorsButton(); // Last
+    this.createErrorsButton();
   }
 
   private createModeToggleButton(): void {
@@ -40,7 +45,7 @@ export class ViewActionBar {
     this.splitPreviewButton.addClass("view-action");
     this.splitPreviewButton.setAttribute(
       "aria-label",
-      "Open live preview in split pane"
+      "Open live preview in split pane",
     );
     setIcon(this.splitPreviewButton, "columns-2");
     this.splitPreviewButton.addEventListener("click", () => {
@@ -50,7 +55,7 @@ export class ViewActionBar {
     if (this.modeIconContainer?.nextSibling) {
       this.viewActions.insertBefore(
         this.splitPreviewButton,
-        this.modeIconContainer.nextSibling
+        this.modeIconContainer.nextSibling,
       );
     } else {
       this.viewActions.appendChild(this.splitPreviewButton);
@@ -66,10 +71,11 @@ export class ViewActionBar {
       await this.onExport();
     });
 
-    if (this.splitPreviewButton?.nextSibling) {
+    const prevButton = this.splitPreviewButton || this.modeIconContainer;
+    if (prevButton?.nextSibling) {
       this.viewActions.insertBefore(
         this.exportButton,
-        this.splitPreviewButton.nextSibling
+        prevButton.nextSibling,
       );
     } else {
       this.viewActions.appendChild(this.exportButton);
@@ -92,7 +98,7 @@ export class ViewActionBar {
     if (this.exportButton?.nextSibling) {
       this.viewActions.insertBefore(
         this.errorsButton,
-        this.exportButton.nextSibling
+        this.exportButton.nextSibling,
       );
     } else {
       this.viewActions.appendChild(this.errorsButton);
@@ -113,14 +119,23 @@ export class ViewActionBar {
       setIcon(this.modeIconContainer, "pencil-line");
       this.modeIconContainer.setAttribute(
         "aria-label",
-        "Currently in source mode. Click to switch to reading mode."
+        "Currently in source mode. Click to switch to reading mode.",
       );
     } else {
       setIcon(this.modeIconContainer, "book-open");
       this.modeIconContainer.setAttribute(
         "aria-label",
-        "Currently in reading mode. Click to switch to source mode."
+        "Currently in reading mode. Click to switch to source mode.",
       );
+    }
+  }
+
+  setLivePreviewEnabled(enabled: boolean): void {
+    if (enabled && !this.splitPreviewButton) {
+      this.createSplitPreviewButton();
+    } else if (!enabled && this.splitPreviewButton) {
+      this.splitPreviewButton.remove();
+      this.splitPreviewButton = null;
     }
   }
 

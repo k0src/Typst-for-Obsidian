@@ -83,7 +83,7 @@ export class TypstView extends TextFileView {
         () => this.openSplitPreview(),
         (anchorEl: HTMLElement) => this.showErrorsPane(anchorEl)
       );
-      this.actionBar.initialize(this.currentMode);
+      this.actionBar.initialize(this.currentMode, this.plugin.settings.enableLivePreview);
       this.actionBar.updateErrorCount(this.currentErrors.length);
     }
   }
@@ -326,6 +326,10 @@ export class TypstView extends TextFileView {
     if (this.typstEditor && this.currentMode === "source") {
       await this.typstEditor.updateTheme();
     }
+  }
+
+  public updateLivePreviewButton(): void {
+    this.actionBar?.setLivePreviewEnabled(this.plugin.settings.enableLivePreview);
   }
 
   private async switchToReadingMode(): Promise<void> {

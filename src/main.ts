@@ -212,6 +212,12 @@ export default class TypstForObsidian extends Plugin {
       new Notice(`Snippet configuration error: ${error}`);
       console.error("Snippet parsing failed:", error);
     }
+
+    this.app.workspace.iterateAllLeaves((leaf) => {
+      if (leaf.view instanceof TypstView) {
+        (leaf.view as TypstView).updateActionBar();
+      }
+    });
   }
 
   private async fetchWasm() {
