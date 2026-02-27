@@ -228,7 +228,21 @@ export class TypstView extends TextFileView {
 
   private async openPdfInSplitPane(pdfPath: string): Promise<void> {
     const pdfFile = this.app.vault.getAbstractFileByPath(pdfPath);
-    if (pdfFile instanceof TFile) {
+    if (!(pdfFile instanceof TFile)) return;
+
+    const activeLeaf = this.app.workspace.getLeaf(false);
+    let alreadyOpen = false;
+    this.app.workspace.iterateAllLeaves((leaf) => {
+      if (
+        leaf !== activeLeaf &&
+        (leaf.view as any)?.file instanceof TFile &&
+        (leaf.view as any).file.path === pdfPath
+      ) {
+        alreadyOpen = true;
+      }
+    });
+
+    if (!alreadyOpen) {
       const newLeaf = this.app.workspace.getLeaf("split");
       await newLeaf.openFile(pdfFile);
     }
