@@ -195,6 +195,7 @@ npm run build:deploy
 - [x] Open PDF in split pane button + hotkey
 - [ ] Auto-export PDF on...
 - [ ] Fix color picker showing up for some `#` function calls
+- [ ] Editor zoom level
 - [ ] Fix problems show up on wrong side of split pane
 - [ ] Fix pasting
 - [ ] Open in external editor

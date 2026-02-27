@@ -73,10 +73,7 @@ export class ViewActionBar {
 
     const prevButton = this.splitPreviewButton || this.modeIconContainer;
     if (prevButton?.nextSibling) {
-      this.viewActions.insertBefore(
-        this.exportButton,
-        prevButton.nextSibling,
-      );
+      this.viewActions.insertBefore(this.exportButton, prevButton.nextSibling);
     } else {
       this.viewActions.appendChild(this.exportButton);
     }
@@ -119,13 +116,13 @@ export class ViewActionBar {
       setIcon(this.modeIconContainer, "pencil-line");
       this.modeIconContainer.setAttribute(
         "aria-label",
-        "Currently in source mode. Click to switch to reading mode.",
+        "Click to switch to reading mode.",
       );
     } else {
       setIcon(this.modeIconContainer, "book-open");
       this.modeIconContainer.setAttribute(
         "aria-label",
-        "Currently in reading mode. Click to switch to source mode.",
+        "Click to switch to source mode.",
       );
     }
   }
