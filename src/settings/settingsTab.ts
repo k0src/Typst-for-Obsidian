@@ -54,6 +54,34 @@ export class TypstSettingTab extends PluginSettingTab {
     }
 
     new Setting(containerEl)
+      .setName("Font families")
+      .setDesc("System font families to load for Typst compilation.")
+      .addButton((button) =>
+        button.setButtonText("Edit").onClick(() => {
+          new SettingsModal(
+            this.app,
+            getFontFamiliesConfig(this.plugin),
+          ).open();
+        }),
+      );
+
+    new Setting(containerEl)
+      .setName("Auto-download packages")
+      .setDesc(
+        "Automatically download Typst packages from the Typst Universe when compiling.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.autoDownloadPackages)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.autoDownloadPackages = value;
+            await this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(containerEl).setHeading().setName("PDF Settings");
+
+    new Setting(containerEl)
       .setName("Use PDF export layout functions")
       .setDesc("Customize layout functions for PDF exports only.")
       .addToggle((toggle) =>
@@ -80,18 +108,6 @@ export class TypstSettingTab extends PluginSettingTab {
     }
 
     new Setting(containerEl)
-      .setName("Font families")
-      .setDesc("System font families to load for Typst compilation.")
-      .addButton((button) =>
-        button.setButtonText("Edit").onClick(() => {
-          new SettingsModal(
-            this.app,
-            getFontFamiliesConfig(this.plugin),
-          ).open();
-        }),
-      );
-
-    new Setting(containerEl)
       .setName("Enable text layer")
       .setDesc(
         "Enable text selection and link clicking in PDF preview. Disable for better performance if not needed.",
@@ -101,20 +117,6 @@ export class TypstSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.enableTextLayer)
           .onChange(async (value: boolean) => {
             this.plugin.settings.enableTextLayer = value;
-            await this.plugin.saveSettings();
-          }),
-      );
-
-    new Setting(containerEl)
-      .setName("Auto-download packages")
-      .setDesc(
-        "Automatically download Typst packages from the Typst Universe when compiling.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.autoDownloadPackages)
-          .onChange(async (value: boolean) => {
-            this.plugin.settings.autoDownloadPackages = value;
             await this.plugin.saveSettings();
           }),
       );

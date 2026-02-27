@@ -177,7 +177,7 @@ export class TypstView extends TextFileView {
       }
 
       const folderPath = filePath.substring(0, filePath.lastIndexOf("/"));
-      const baseName = this.file.basename;
+      const baseName = this.file.basename.replace(/\.typ$/, "");
       const pdfFileName = `${baseName}.pdf`;
       const pdfPath = folderPath ? `${folderPath}/${pdfFileName}` : pdfFileName;
 
