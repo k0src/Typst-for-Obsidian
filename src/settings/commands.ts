@@ -1,9 +1,10 @@
-import { MarkdownView, Notice, Plugin } from "obsidian";
+import { MarkdownView, Notice } from "obsidian";
 import { CreateTypstFileModal } from "../ui/createTypstFileModal";
 import { TypstView } from "../typstView";
 import { toggleMarkdownFormatting } from "../util/markdownUtils";
+import TypstForObsidian from "../main";
 
-export function registerCommands(plugin: Plugin) {
+export function registerCommands(plugin: TypstForObsidian) {
   plugin.addCommand({
     id: "typst-bold",
     name: "Toggle bold",
@@ -147,6 +148,30 @@ export function registerCommands(plugin: Plugin) {
       }
 
       if (!inTypstView) {
+        new Notice("Must be in a Typst (.typ) file");
+      }
+      return false;
+    },
+  });
+
+  plugin.addCommand({
+    id: "open-live-preview",
+    name: "Open live preview in split pane",
+    checkCallback: (checking: boolean) => {
+      if (!plugin.settings.enableLivePreview) {
+        return false;
+      }
+
+      const view = plugin.app.workspace.getActiveViewOfType(TypstView);
+
+      if (view instanceof TypstView) {
+        if (!checking) {
+          view.openSplitPreview();
+        }
+        return true;
+      }
+
+      if (!checking) {
         new Notice("Must be in a Typst (.typ) file");
       }
       return false;

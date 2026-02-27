@@ -81,9 +81,12 @@ export class TypstView extends TextFileView {
         () => this.toggleMode(),
         () => this.exportToPdf(),
         () => this.openSplitPreview(),
-        (anchorEl: HTMLElement) => this.showErrorsPane(anchorEl)
+        (anchorEl: HTMLElement) => this.showErrorsPane(anchorEl),
       );
-      this.actionBar.initialize(this.currentMode, this.plugin.settings.enableLivePreview);
+      this.actionBar.initialize(
+        this.currentMode,
+        this.plugin.settings.enableLivePreview,
+      );
       this.actionBar.updateErrorCount(this.currentErrors.length);
     }
   }
@@ -150,7 +153,7 @@ export class TypstView extends TextFileView {
       },
       () => {
         this.errorsDropdown = null;
-      }
+      },
     );
   }
 
@@ -166,7 +169,7 @@ export class TypstView extends TextFileView {
       const pdfData = await this.plugin.compileToPdf(
         content,
         filePath,
-        "export"
+        "export",
       );
       if (!pdfData) {
         console.error("PDF compilation failed");
@@ -180,7 +183,7 @@ export class TypstView extends TextFileView {
 
       const arrayBuffer = pdfData.buffer.slice(
         pdfData.byteOffset,
-        pdfData.byteOffset + pdfData.byteLength
+        pdfData.byteOffset + pdfData.byteLength,
       ) as ArrayBuffer;
       const existingFile = this.app.vault.getAbstractFileByPath(pdfPath);
       if (existingFile) {
@@ -234,20 +237,20 @@ export class TypstView extends TextFileView {
     if (active) {
       this.compilationManager.on(
         "compilation-complete",
-        this.handleCompilationComplete.bind(this)
+        this.handleCompilationComplete.bind(this),
       );
       this.compilationManager.on(
         "compilation-error",
-        this.handleCompilationError.bind(this)
+        this.handleCompilationError.bind(this),
       );
     } else {
       this.compilationManager.off(
         "compilation-complete",
-        this.handleCompilationComplete.bind(this)
+        this.handleCompilationComplete.bind(this),
       );
       this.compilationManager.off(
         "compilation-error",
-        this.handleCompilationError.bind(this)
+        this.handleCompilationError.bind(this),
       );
     }
   }
@@ -258,7 +261,7 @@ export class TypstView extends TextFileView {
   }
 
   private async handleCompilationComplete(
-    result: CompilationResult
+    result: CompilationResult,
   ): Promise<void> {
     if (this.currentMode === "reading" && this.pairedView) {
       await this.showReadingMode(result.pdfData);
@@ -328,8 +331,10 @@ export class TypstView extends TextFileView {
     }
   }
 
-  public updateLivePreviewButton(): void {
-    this.actionBar?.setLivePreviewEnabled(this.plugin.settings.enableLivePreview);
+  public updateActionBar(): void {
+    this.actionBar?.setLivePreviewEnabled(
+      this.plugin.settings.enableLivePreview,
+    );
   }
 
   private async switchToReadingMode(): Promise<void> {
@@ -467,7 +472,7 @@ export class TypstView extends TextFileView {
       (content: string) => {
         this.fileContent = content;
         this.handleContentChange(content);
-      }
+      },
     );
 
     this.typstEditor.initialize(this.fileContent).catch((err) => {
@@ -487,7 +492,7 @@ export class TypstView extends TextFileView {
       this.compilationManager.scheduleCompile(
         content,
         this.file.path,
-        debounceDelay
+        debounceDelay,
       );
     }
   }
@@ -518,7 +523,7 @@ export class TypstView extends TextFileView {
       await this.pdfRenderer.renderPdf(
         pdfData,
         readingDiv,
-        this.plugin.settings.enableTextLayer
+        this.plugin.settings.enableTextLayer,
       );
       const savedScroll = this.stateManager.getSavedReadingScrollTop();
 

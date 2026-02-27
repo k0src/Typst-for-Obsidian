@@ -190,8 +190,8 @@ npm run build:deploy
 
 - [ ] **Improve performance of PDF rendering**
 - [x] Add "New Typst File" to context menu
-- [ ] Turn off live preview button when live preview is disabled
-- [ ] Open live preview in split pane hotkey
+- [x] Turn off live preview button when live preview is disabled
+- [x] Open live preview in split pane hotkey
 - [ ] Open PDF in split pane button + hotkey
 - [ ] Auto-export PDF on...
 - [ ] Default folder for `.typ` files
