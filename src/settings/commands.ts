@@ -177,4 +177,24 @@ export function registerCommands(plugin: TypstForObsidian) {
       return false;
     },
   });
+
+  plugin.addCommand({
+    id: "export-and-open-pdf",
+    name: "Export to PDF and open in split pane",
+    checkCallback: (checking: boolean) => {
+      const view = plugin.app.workspace.getActiveViewOfType(TypstView);
+
+      if (view instanceof TypstView) {
+        if (!checking) {
+          view.exportAndOpenPdf();
+        }
+        return true;
+      }
+
+      if (!checking) {
+        new Notice("Must be in a Typst (.typ) file");
+      }
+      return false;
+    },
+  });
 }

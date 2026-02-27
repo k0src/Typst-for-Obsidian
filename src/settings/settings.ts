@@ -72,6 +72,7 @@ export interface TypstSettings {
   enableTextLayer: boolean;
   suppressPdfExportNotice: boolean;
   pdfExportPath: string;
+  openPdfOnExport: boolean;
   enableLivePreview: boolean;
   livePreviewDebounce: number;
   customSnippets: string;
@@ -90,6 +91,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   enableTextLayer: true,
   suppressPdfExportNotice: false,
   pdfExportPath: "",
+  openPdfOnExport: false,
   enableLivePreview: true,
   livePreviewDebounce: 500,
   useObsidianTextColor: false,

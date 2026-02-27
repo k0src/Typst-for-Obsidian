@@ -1,4 +1,4 @@
-import { TextFileView, WorkspaceLeaf, Notice, normalizePath } from "obsidian";
+import { TextFileView, WorkspaceLeaf, Notice, normalizePath, TFile } from "obsidian";
 import { TypstEditor } from "./typstEditor";
 import TypstForObsidian from "./main";
 import { PdfRenderer } from "./pdfRenderer";
@@ -157,10 +157,10 @@ export class TypstView extends TextFileView {
     );
   }
 
-  public async exportToPdf(): Promise<void> {
+  public async exportToPdf(): Promise<string | null> {
     if (!this.file) {
       console.error("No file available for export");
-      return;
+      return null;
     }
 
     try {
@@ -173,7 +173,7 @@ export class TypstView extends TextFileView {
       );
       if (!pdfData) {
         console.error("PDF compilation failed");
-        return;
+        return null;
       }
 
       const baseName = this.file.basename.replace(/\.typ$/, "");
@@ -206,9 +206,31 @@ export class TypstView extends TextFileView {
       if (!this.plugin.settings.suppressPdfExportNotice) {
         new Notice(`PDF exported to: ${pdfPath}`);
       }
+
+      if (this.plugin.settings.openPdfOnExport) {
+        await this.openPdfInSplitPane(pdfPath);
+      }
+
+      return pdfPath;
     } catch (error) {
       new Notice("Failed to export PDF. See console for details.");
       console.error("Failed to export PDF:", error);
+      return null;
+    }
+  }
+
+  public async exportAndOpenPdf(): Promise<void> {
+    const pdfPath = await this.exportToPdf();
+    if (pdfPath && !this.plugin.settings.openPdfOnExport) {
+      await this.openPdfInSplitPane(pdfPath);
+    }
+  }
+
+  private async openPdfInSplitPane(pdfPath: string): Promise<void> {
+    const pdfFile = this.app.vault.getAbstractFileByPath(pdfPath);
+    if (pdfFile instanceof TFile) {
+      const newLeaf = this.app.workspace.getLeaf("split");
+      await newLeaf.openFile(pdfFile);
     }
   }
 

@@ -148,6 +148,20 @@ export class TypstSettingTab extends PluginSettingTab {
           }),
       );
 
+    new Setting(containerEl)
+      .setName("Open PDF in split pane on export")
+      .setDesc(
+        "Automatically open the exported PDF in a split pane after exporting.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.openPdfOnExport)
+          .onChange(async (value: boolean) => {
+            this.plugin.settings.openPdfOnExport = value;
+            await this.plugin.saveSettings();
+          }),
+      );
+
     new Setting(containerEl).setHeading().setName("Editor Settings");
 
     new Setting(containerEl)

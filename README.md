@@ -192,7 +192,7 @@ npm run build:deploy
 - [x] Add "New Typst File" to context menu
 - [x] Turn off live preview button when live preview is disabled
 - [x] Open live preview in split pane hotkey
-- [ ] Open PDF in split pane button + hotkey
+- [x] Open PDF in split pane button + hotkey
 - [ ] Auto-export PDF on...
 - [ ] Fix color picker showing up for some `#` function calls
 - [ ] Fix problems show up on wrong side of split pane
@@ -201,7 +201,7 @@ npm run build:deploy
 - [ ] Formatter for Typst code
 - [ ] Tinymist LSP support
 - [ ] Add support for jumping from preview/PDF to source by clicking on text
-- [ ] Add backlink support in PDF preview
+- [ ] Add backlink support in live preview
 - [ ] Support for more template variables
 - [ ] Improve error handling and reporting
 - [ ] Support Typst packages that use WebAssembly modules
