@@ -111,6 +111,14 @@ export class TypstView extends TextFileView {
         return false;
       }
     });
+
+    // Paste
+    this.scope!.register(["Mod"], "v", () => {
+      if (this.currentMode === "source" && this.typstEditor) {
+        this.typstEditor.paste();
+        return false;
+      }
+    });
   }
 
   onResize(): void {

@@ -123,33 +123,6 @@ export class TypstEditor {
       }
     });
 
-    this.monacoEditor.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV,
-      async () => {
-        try {
-          const text = await navigator.clipboard.readText();
-          if (text && this.monacoEditor) {
-            const selection = this.monacoEditor.getSelection();
-            if (selection) {
-              this.monacoEditor.executeEdits("paste", [
-                {
-                  range: selection,
-                  text: text,
-                },
-              ]);
-            }
-          }
-        } catch (err) {
-          console.warn("Failed to read clipboard:", err);
-          this.monacoEditor?.trigger(
-            "keyboard",
-            "editor.action.clipboardPasteAction",
-            null,
-          );
-        }
-      },
-    );
-
     this.monacoEditor.onKeyDown((e) => {
       if (
         e.keyCode === monaco.KeyCode.Enter &&
@@ -339,6 +312,31 @@ export class TypstEditor {
       return true;
     }
     return false;
+  }
+
+  public async paste(): Promise<void> {
+    if (!this.monacoEditor) return;
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        const selection = this.monacoEditor.getSelection();
+        if (selection) {
+          this.monacoEditor.executeEdits("paste", [
+            {
+              range: selection,
+              text: text,
+            },
+          ]);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to read clipboard:", err);
+      this.monacoEditor?.trigger(
+        "keyboard",
+        "editor.action.clipboardPasteAction",
+        null,
+      );
+    }
   }
 
   public onResize(): void {
