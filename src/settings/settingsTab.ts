@@ -23,8 +23,6 @@ export class TypstSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    new Setting(containerEl).setHeading().setName("Typst Settings");
-
     new Setting(containerEl)
       .setName("Use custom default layout functions")
       .setDesc(
