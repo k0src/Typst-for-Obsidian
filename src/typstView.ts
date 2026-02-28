@@ -4,6 +4,7 @@ import {
   Notice,
   normalizePath,
   TFile,
+  Scope,
 } from "obsidian";
 import { TypstEditor } from "./typstEditor";
 import TypstForObsidian from "./main";
@@ -34,6 +35,7 @@ export class TypstView extends TextFileView {
     this.pdfRenderer = new PdfRenderer();
     this.stateManager = new EditorStateManager();
     this.compilationManager = new CompilationManager(plugin);
+    this.scope = new Scope(this.app.scope);
   }
 
   getViewType(): string {
@@ -51,11 +53,54 @@ export class TypstView extends TextFileView {
   async onOpen(): Promise<void> {
     await super.onOpen();
     this.initializeActionBar();
+    this.registerScopeKeybindings();
 
     const viewContent = this.getContentElement();
     if (viewContent) {
       viewContent.dataset.mode = this.currentMode;
     }
+  }
+
+  private registerScopeKeybindings(): void {
+    // Bold
+    this.scope!.register(["Mod"], "b", () => {
+      if (this.currentMode === "source") {
+        this.toggleBold();
+        return false;
+      }
+    });
+
+    // Italic
+    this.scope!.register(["Mod"], "i", () => {
+      if (this.currentMode === "source") {
+        this.toggleItalic();
+        return false;
+      }
+    });
+
+    // Underline
+    this.scope!.register(["Mod"], "u", () => {
+      if (this.currentMode === "source") {
+        this.toggleUnderline();
+        return false;
+      }
+    });
+
+    // Heading up
+    this.scope!.register(["Mod"], "]", () => {
+      if (this.currentMode === "source") {
+        this.increaseHeadingLevel();
+        return false;
+      }
+    });
+
+    // Heading down
+    this.scope!.register(["Mod"], "[", () => {
+      if (this.currentMode === "source") {
+        this.decreaseHeadingLevel();
+        return false;
+      }
+    });
   }
 
   onResize(): void {
