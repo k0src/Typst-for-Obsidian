@@ -13,6 +13,7 @@ import { ViewActionBar } from "./ui/viewActionBar";
 import { EditorStateManager } from "./editorStateManager";
 import { CompilationManager, CompilationResult } from "./compilationManager";
 import { ErrorsDropdown, TypstError, parseTypstError } from "./ui/errorsPane";
+import { EditorHotkeyManager } from "./editorHotkeyManager";
 
 export class TypstView extends TextFileView {
   private currentMode: "source" | "reading" = "source";
@@ -53,72 +54,20 @@ export class TypstView extends TextFileView {
   async onOpen(): Promise<void> {
     await super.onOpen();
     this.initializeActionBar();
-    this.registerScopeKeybindings();
+    new EditorHotkeyManager(this.scope!, {
+      getCurrentMode: () => this.currentMode,
+      getEditor: () => this.typstEditor,
+      toggleBold: () => this.toggleBold(),
+      toggleItalic: () => this.toggleItalic(),
+      toggleUnderline: () => this.toggleUnderline(),
+      increaseHeadingLevel: () => this.increaseHeadingLevel(),
+      decreaseHeadingLevel: () => this.decreaseHeadingLevel(),
+    }).registerAll();
 
     const viewContent = this.getContentElement();
     if (viewContent) {
       viewContent.dataset.mode = this.currentMode;
     }
-  }
-
-  private registerScopeKeybindings(): void {
-    // Bold
-    this.scope!.register(["Mod"], "b", () => {
-      if (this.currentMode === "source") {
-        this.toggleBold();
-        return false;
-      }
-    });
-
-    // Italic
-    this.scope!.register(["Mod"], "i", () => {
-      if (this.currentMode === "source") {
-        this.toggleItalic();
-        return false;
-      }
-    });
-
-    // Underline
-    this.scope!.register(["Mod"], "u", () => {
-      if (this.currentMode === "source") {
-        this.toggleUnderline();
-        return false;
-      }
-    });
-
-    // Heading up
-    this.scope!.register(["Mod"], "]", () => {
-      if (this.currentMode === "source") {
-        this.increaseHeadingLevel();
-        return false;
-      }
-    });
-
-    // Heading down
-    this.scope!.register(["Mod"], "[", () => {
-      if (this.currentMode === "source") {
-        this.decreaseHeadingLevel();
-        return false;
-      }
-    });
-
-    // Select next occurrence
-    this.scope!.register(["Mod"], "d", () => {
-      if (this.currentMode === "source" && this.typstEditor) {
-        this.typstEditor.triggerAction(
-          "editor.action.addSelectionToNextFindMatch",
-        );
-        return false;
-      }
-    });
-
-    // Paste
-    this.scope!.register(["Mod"], "v", () => {
-      if (this.currentMode === "source" && this.typstEditor) {
-        this.typstEditor.paste();
-        return false;
-      }
-    });
   }
 
   onResize(): void {
