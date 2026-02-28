@@ -325,8 +325,11 @@ export class TypstSettingTab extends PluginSettingTab {
     const summary = details.createEl("summary");
     summary.addClass("typst-syntax-colors-summary");
 
-    const summaryText = summary.createSpan({ text: title });
-    summaryText.addClass("typst-syntax-colors-title");
+    const summaryTitle = summary.createDiv({
+      cls: "typst-syntax-colors-title",
+    });
+    setIcon(summaryTitle, theme === "dark" ? "moon" : "sun");
+    summaryTitle.createSpan({ text: title });
 
     const resetButton = summary.createEl("button");
     resetButton.addClass("clickable-icon");
