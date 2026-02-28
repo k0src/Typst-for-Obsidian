@@ -199,6 +199,7 @@ npm run build:deploy
 - [ ] Test and ensure support for all popular Typst packages
 - [ ] Add support for rendering Typst code in fenced code blocks
 - [ ] Better incremental complication
+- [ ] Editor spellchecker
 - [ ] Organize code...
 
 ## Known Issues
