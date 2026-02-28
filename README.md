@@ -209,7 +209,7 @@ npm run build:deploy
 
 ## Known Issues
 
-- Packages that import WebAssembly modules (like CeTZ) don't work
+- Problems show up in pane on wrong side of split
 - Scroll position restoration when toggling modes is jittery
 
 ## Credits
