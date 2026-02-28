@@ -208,6 +208,8 @@
 /*                                  Settings                                  */
 /* ========================================================================== */
 
+/* ============================== Syntax Colors ============================= */
+
 .typst-syntax-colors-summary {
   display: flex;
   align-items: center;
@@ -238,6 +240,77 @@
 
 .typst-syntax-colors-summary .clickable-icon:hover {
   opacity: 1;
+}
+
+/* ================================= Hotkeys ================================ */
+
+.typst-hotkeys-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: var(--size-4-4);
+  list-style: none;
+  border-radius: var(--setting-items-radius);
+  background-color: var(--setting-items-background);
+  margin-bottom: var(--size-4-2);
+}
+
+.typst-hotkeys-summary::-webkit-details-marker {
+  display: none;
+}
+
+.typst-hotkeys-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-3);
+  flex: 1;
+}
+
+.typst-hotkeys-summary .clickable-icon {
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+.typst-hotkeys-summary .clickable-icon:hover {
+  opacity: 1;
+}
+
+.typst-hotkey-control {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-2);
+}
+
+.typst-hotkey-badge {
+  padding: var(--size-2-1) var(--size-4-1);
+  align-items: center;
+  border-radius: var(--radius-s);
+  background: var(--background-modifier-hover);
+  border: 1px solid var(--background-modifier-border);
+  font-size: var(--font-ui-small);
+  font-family: var(--font-monospace);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.typst-hotkey-capture {
+  padding: 4px 12px;
+  border-radius: var(--radius-s);
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  font-size: var(--font-ui-smaller);
+}
+
+.typst-hotkey-conflict {
+  display: none;
+  color: var(--text-error);
+  font-size: var(--font-ui-smaller);
+  white-space: nowrap;
+}
+
+.typst-hotkey-conflict.visible {
+  display: block;
 }
 
 /* ========================================================================== */

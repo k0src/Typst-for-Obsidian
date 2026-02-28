@@ -10,6 +10,13 @@ import {
   getImportColorsConfig,
   getExportColorsConfig,
 } from "./settingsModalConfigs";
+import {
+  HOTKEY_DEFINITIONS,
+  getEffectiveKeybind,
+  formatKeybind,
+  keybindFromEvent,
+  findConflicts,
+} from "../editorHotkeyManager";
 
 export class TypstSettingTab extends PluginSettingTab {
   plugin: TypstForObsidian;
@@ -215,6 +222,8 @@ export class TypstSettingTab extends PluginSettingTab {
         }),
       );
 
+    this.addHotkeySection(containerEl);
+
     new Setting(containerEl).setHeading().setName("Live Preview");
 
     new Setting(containerEl)
@@ -397,5 +406,149 @@ export class TypstSettingTab extends PluginSettingTab {
         }
       });
     }
+  }
+
+  private addHotkeySection(containerEl: HTMLElement): void {
+    const details = containerEl.createEl("details");
+    const summary = details.createEl("summary");
+    summary.addClass("typst-hotkeys-summary");
+
+    const summaryTitle = summary.createDiv({
+      cls: "typst-hotkeys-title",
+    });
+    setIcon(summaryTitle, "keyboard");
+    summaryTitle.createSpan({ text: "Editor Hotkeys" });
+
+    const resetButton = summary.createEl("button");
+    resetButton.addClass("clickable-icon");
+    resetButton.setAttribute("aria-label", "Reset all to defaults");
+    setIcon(resetButton, "rotate-ccw");
+
+    resetButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.plugin.settings.editorHotkeys = {};
+      await this.plugin.saveSettings();
+      this.display();
+    });
+
+    for (const def of HOTKEY_DEFINITIONS) {
+      const setting = new Setting(details).setName(def.label);
+      this.renderHotkeyControl(setting.controlEl, def);
+    }
+  }
+
+  private renderHotkeyControl(
+    controlEl: HTMLElement,
+    def: (typeof HOTKEY_DEFINITIONS)[number],
+  ): void {
+    controlEl.empty();
+    controlEl.addClass("typst-hotkey-control");
+
+    const overrides = this.plugin.settings.editorHotkeys;
+    const effective = getEffectiveKeybind(def, overrides);
+    const isModified = def.id in overrides;
+
+    if (effective) {
+      const badge = controlEl.createEl("kbd", "typst-hotkey-badge");
+      badge.setText(formatKeybind(effective).join(" + "));
+
+      const removeBtn = controlEl.createDiv("clickable-icon");
+      removeBtn.setAttribute("aria-label", "Remove hotkey");
+      setIcon(removeBtn, "x");
+      removeBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        this.plugin.settings.editorHotkeys[def.id] = "";
+        await this.plugin.saveSettings();
+        this.renderHotkeyControl(controlEl, def);
+      });
+    }
+
+    if (isModified) {
+      const resetBtn = controlEl.createDiv("clickable-icon");
+      resetBtn.setAttribute("aria-label", "Restore default");
+      setIcon(resetBtn, "rotate-ccw");
+      resetBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        delete this.plugin.settings.editorHotkeys[def.id];
+        await this.plugin.saveSettings();
+        this.renderHotkeyControl(controlEl, def);
+      });
+    }
+
+    const addBtn = controlEl.createDiv("clickable-icon");
+    addBtn.setAttribute("aria-label", "Set hotkey");
+    setIcon(addBtn, "circle-plus");
+    addBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.startCapture(controlEl, def);
+    });
+  }
+
+  private startCapture(
+    controlEl: HTMLElement,
+    def: (typeof HOTKEY_DEFINITIONS)[number],
+  ): void {
+    controlEl.empty();
+    controlEl.addClass("typst-hotkey-control");
+
+    const captureEl = controlEl.createDiv("typst-hotkey-capture");
+    captureEl.setText("Press hotkey...");
+
+    const conflictEl = controlEl.createDiv("typst-hotkey-conflict");
+
+    const cleanup = () => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      document.removeEventListener("click", onClickOutside, true);
+    };
+
+    const onKeyDown = async (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (e.key === "Escape") {
+        cleanup();
+        this.renderHotkeyControl(controlEl, def);
+        return;
+      }
+
+      const keybind = keybindFromEvent(e);
+      if (!keybind) return;
+
+      const conflicts = findConflicts(
+        def.id,
+        keybind,
+        this.plugin.settings.editorHotkeys,
+      );
+
+      if (conflicts.length > 0) {
+        conflictEl.empty();
+        conflictEl.addClass("visible");
+        const names = conflicts.map((c) => c.label).join(", ");
+        conflictEl.setText(`Already assigned to: ${names}`);
+
+        setTimeout(() => {
+          conflictEl.removeClass("visible");
+        }, 3000);
+        return;
+      }
+
+      this.plugin.settings.editorHotkeys[def.id] = keybind;
+      await this.plugin.saveSettings();
+      cleanup();
+      this.renderHotkeyControl(controlEl, def);
+    };
+
+    const onClickOutside = (e: MouseEvent) => {
+      if (!controlEl.contains(e.target as Node)) {
+        cleanup();
+        this.renderHotkeyControl(controlEl, def);
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown, true);
+    setTimeout(() => {
+      document.addEventListener("click", onClickOutside, true);
+    }, 0);
   }
 }

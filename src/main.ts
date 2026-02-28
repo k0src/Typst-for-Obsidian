@@ -215,7 +215,9 @@ export default class TypstForObsidian extends Plugin {
 
     this.app.workspace.iterateAllLeaves((leaf) => {
       if (leaf.view instanceof TypstView) {
-        (leaf.view as TypstView).updateActionBar();
+        const typstView = leaf.view as TypstView;
+        typstView.updateActionBar();
+        typstView.rebuildHotkeys();
       }
     });
   }

@@ -54,15 +54,7 @@ export class TypstView extends TextFileView {
   async onOpen(): Promise<void> {
     await super.onOpen();
     this.initializeActionBar();
-    new EditorHotkeyManager(this.scope!, {
-      getCurrentMode: () => this.currentMode,
-      getEditor: () => this.typstEditor,
-      toggleBold: () => this.toggleBold(),
-      toggleItalic: () => this.toggleItalic(),
-      toggleUnderline: () => this.toggleUnderline(),
-      increaseHeadingLevel: () => this.increaseHeadingLevel(),
-      decreaseHeadingLevel: () => this.decreaseHeadingLevel(),
-    }).registerAll();
+    this.registerHotkeys();
 
     const viewContent = this.getContentElement();
     if (viewContent) {
@@ -406,6 +398,23 @@ export class TypstView extends TextFileView {
     this.actionBar?.setLivePreviewEnabled(
       this.plugin.settings.enableLivePreview,
     );
+  }
+
+  private registerHotkeys(): void {
+    new EditorHotkeyManager(this.scope!, {
+      getCurrentMode: () => this.currentMode,
+      getEditor: () => this.typstEditor,
+      toggleBold: () => this.toggleBold(),
+      toggleItalic: () => this.toggleItalic(),
+      toggleUnderline: () => this.toggleUnderline(),
+      increaseHeadingLevel: () => this.increaseHeadingLevel(),
+      decreaseHeadingLevel: () => this.decreaseHeadingLevel(),
+    }).registerAll(this.plugin.settings.editorHotkeys);
+  }
+
+  public rebuildHotkeys(): void {
+    this.scope = new Scope(this.app.scope);
+    this.registerHotkeys();
   }
 
   private async switchToReadingMode(): Promise<void> {

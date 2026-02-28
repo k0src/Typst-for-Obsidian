@@ -79,6 +79,7 @@ export interface TypstSettings {
   syntaxHighlightColors: SyntaxHighlightColors;
   useObsidianTextColor: boolean;
   useObsidianMonospaceFont: boolean;
+  editorHotkeys: Record<string, string>;
 }
 
 export const DEFAULT_SETTINGS: TypstSettings = {
@@ -96,6 +97,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   livePreviewDebounce: 500,
   useObsidianTextColor: false,
   useObsidianMonospaceFont: true,
+  editorHotkeys: {},
   syntaxHighlightColors: {
     dark: {
       defaultText: "#D4D4D4",
@@ -173,7 +175,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
       },
     },
     null,
-    2
+    2,
   ),
   // prettier-ignore
   customLayoutFunctions: 

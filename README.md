@@ -27,6 +27,8 @@ Typst for Obsidian is a [Typst](https://typst.app) editor integrated directly in
 3. Click the preview icon to render PDF
 4. Click the export icon to save PDF to vault
 
+_To do: instructions for different usage types..._
+
 ### Template Variables
 
 Use these variables in your Typst documents to match Obsidian themes:
@@ -86,20 +88,11 @@ Example (inserting a table aligned to the center):
 - **Custom Snippets** - Add custom Typst snippets for autocomplete
 - **Syntax Highlighting** - Customize colors for 28 different syntax categories, separately for dark and light themes. Import/export color configurations as JSON
 
+_To do: update with all settings..._
+
 ## Commands
 
-- **Create new Typst file** - Create `.typ` file at specified path
-- **Toggle source/reading mode** - Switch between editing and preview
-- **Export to PDF** - Export current document to PDF file
-- **Toggle bold** - Wrap selection with `*text*`
-- **Toggle italic** - Wrap selection with `_text_`
-- **Toggle underline** - Wrap selection with `#underline[text]`
-- **Increase heading level** - Add one `=` to heading (max 6 levels)
-- **Decrease heading level** - Remove one `=` from heading (min 2 levels)
-
-> [!NOTE]
->
-> Since Obsidian doesn't let you use the same hotkeys for different views, to use `Ctrl+B` and `Ctrl+I` in both Typst files and Markdown files, unbind the default bold and italic hotkeys, and bind `Toggle bold` and `Toggle italic` to `Ctrl+B` and `Ctrl+I`. It will work for both Typst files and Markdown files. Alternatively, you can just use two different hotkeys.
+_To do: updated commands + editor hotkeys..._
 
 ## Official Template
 
@@ -137,8 +130,8 @@ When using this template, I recommend setting the custom layout function in the 
 
 Make sure to set `standalone: false`. This will prevent the template from adding its own page layout. Additionally, make sure you have the required fonts installed and added to the font families in settings:
 
-- [Inter 24pt](https://fonts.google.com/specimen/Inter)
-- [GeistMono NFP](https://github.com/ryanoasis/nerd-fonts/releases/)
+- [Fira Sans](https://fonts.google.com/specimen/Fira+Sans)
+- [Fira Code](https://fonts.google.com/specimen/Fira+Code)
 - [Fira Math](https://github.com/firamath/firamath/releases/)
 
 ## Installation
@@ -193,11 +186,9 @@ npm run build:deploy
 - [x] Turn off live preview button when live preview is disabled
 - [x] Open live preview in split pane hotkey
 - [x] Open PDF in split pane button + hotkey
-- [ ] Auto-export PDF on...
-- [ ] Fix color picker showing up for some `#` function calls
-- [ ] Editor zoom level
+- [x] Editor zoom level
 - [ ] Fix problems show up on wrong side of split pane
-- [ ] Fix pasting
+- [x] Fix pasting
 - [ ] Open in external editor
 - [ ] Formatter for Typst code
 - [ ] Tinymist LSP support
@@ -207,6 +198,8 @@ npm run build:deploy
 - [ ] Improve error handling and reporting
 - [ ] Test and ensure support for all popular Typst packages
 - [ ] Add support for rendering Typst code in fenced code blocks
+- [ ] Better incremental complication
+- [ ] Organize code...
 
 ## Known Issues
 
