@@ -213,8 +213,11 @@
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding: var(--size-4-2) 0;
+  padding: var(--size-4-4);
   list-style: none;
+  border-radius: var(--setting-items-radius);
+  background-color: var(--setting-items-background);
+  margin-bottom: var(--size-4-2);
 }
 
 .typst-syntax-colors-summary::-webkit-details-marker {
@@ -222,6 +225,9 @@
 }
 
 .typst-syntax-colors-title {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-3);
   flex: 1;
 }
 
