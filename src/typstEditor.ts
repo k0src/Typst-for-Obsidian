@@ -331,6 +331,16 @@ export class TypstEditor {
     this.monacoEditor?.focus();
   }
 
+  public triggerAction(actionId: string): boolean {
+    if (!this.monacoEditor) return false;
+    const action = this.monacoEditor.getAction(actionId);
+    if (action) {
+      action.run();
+      return true;
+    }
+    return false;
+  }
+
   public onResize(): void {
     this.monacoEditor?.layout();
   }

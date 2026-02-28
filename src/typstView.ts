@@ -101,6 +101,16 @@ export class TypstView extends TextFileView {
         return false;
       }
     });
+
+    // Select next occurrence
+    this.scope!.register(["Mod"], "d", () => {
+      if (this.currentMode === "source" && this.typstEditor) {
+        this.typstEditor.triggerAction(
+          "editor.action.addSelectionToNextFindMatch",
+        );
+        return false;
+      }
+    });
   }
 
   onResize(): void {
