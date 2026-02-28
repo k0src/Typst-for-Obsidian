@@ -102,6 +102,7 @@ export class TypstEditor {
       formatOnPaste: true,
       contextmenu: false,
       colorDecorators: false,
+      accessibilitySupport: "auto",
     };
 
     this.monacoEditor = monaco.editor.create(this.container, editorOptions);
