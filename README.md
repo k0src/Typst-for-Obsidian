@@ -205,7 +205,8 @@ npm run build:deploy
 - [ ] Add backlink support in live preview
 - [ ] Support for more template variables
 - [ ] Improve error handling and reporting
-- [ ] Support Typst packages that use WebAssembly modules
+- [ ] Test and ensure support for all popular Typst packages
+- [ ] Add support for rendering Typst code in fenced code blocks
 
 ## Known Issues
 
