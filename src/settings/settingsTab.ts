@@ -31,6 +31,22 @@ export class TypstSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     new Setting(containerEl)
+      .setName("Default file mode")
+      .setDesc(
+        "Choose whether Typst files open in source or reading mode by default",
+      )
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("source", "Source mode")
+          .addOption("reading", "Reading mode")
+          .setValue(this.plugin.settings.defaultMode)
+          .onChange(async (value: "source" | "reading") => {
+            this.plugin.settings.defaultMode = value;
+            await this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(containerEl)
       .setName("Use custom default layout functions")
       .setDesc(
         "Wraps editor content with default page, text, and styling functions.",
@@ -170,22 +186,6 @@ export class TypstSettingTab extends PluginSettingTab {
     new Setting(containerEl).setHeading().setName("Editor Settings");
 
     new Setting(containerEl)
-      .setName("Default file mode")
-      .setDesc(
-        "Choose whether Typst files open in source or reading mode by default",
-      )
-      .addDropdown((dropdown) =>
-        dropdown
-          .addOption("source", "Source mode")
-          .addOption("reading", "Reading mode")
-          .setValue(this.plugin.settings.defaultMode)
-          .onChange(async (value: "source" | "reading") => {
-            this.plugin.settings.defaultMode = value;
-            await this.plugin.saveSettings();
-          }),
-      );
-
-    new Setting(containerEl)
       .setName("Use Obsidian monospace font")
       .setDesc(
         "Use Obsidian theme's monospace font in the editor. Disable to use the editor's default font.",
@@ -304,14 +304,14 @@ export class TypstSettingTab extends PluginSettingTab {
 
     this.addSyntaxColorSection(
       containerEl,
-      "Dark Theme Colors",
+      "Dark theme colors",
       "dark",
       this.plugin.settings.useObsidianTextColor,
     );
 
     this.addSyntaxColorSection(
       containerEl,
-      "Light Theme Colors",
+      "Light theme colors",
       "light",
       this.plugin.settings.useObsidianTextColor,
     );
@@ -417,7 +417,7 @@ export class TypstSettingTab extends PluginSettingTab {
       cls: "typst-hotkeys-title",
     });
     setIcon(summaryTitle, "keyboard");
-    summaryTitle.createSpan({ text: "Editor Hotkeys" });
+    summaryTitle.createSpan({ text: "Editor hotkeys" });
 
     const resetButton = summary.createEl("button");
     resetButton.addClass("clickable-icon");
