@@ -60,7 +60,7 @@ Template variables are variables specified between `%`s that represent the value
 |              | `%FAINTCOLOR%`            | Faint text color                                       | `--text-faint`                 |
 |              | `%MUTEDCOLOR%`            | Muted text color                                       | `--text-muted`                 |
 |              | `%BASECOLOR-00%`          | Base colors, light to dark                             | `--color-base-00`              |
-|              | `%BASECOLOR-05%`          |                                                        | `--color-base-50`              |
+|              | `%BASECOLOR-05%`          |                                                        | `--color-base-05`              |
 |              | `%BASECOLOR-10%`          |                                                        | `--color-base-10`              |
 |              | `%BASECOLOR-20%`          |                                                        | `--color-base-20`              |
 |              | `%BASECOLOR-25%`          |                                                        | `--color-base-25`              |
@@ -95,7 +95,7 @@ Template variables are variables specified between `%`s that represent the value
 |              | `%CODEBGCOLOR%`           | Code block background color                            | `--code-background`            |
 |              | `%CODECOLOR%`             | Non-highlighted code color                             | `--code-normal`                |
 |              | `%LINKCOLOR%`             | Link color                                             | `--link-color`                 |
-|              | `%TABLEBGCOLOR`           | Table background color                                 | `--table-background`           |
+|              | `%TABLEBGCOLOR%`          | Table background color                                 | `--table-background`           |
 
 </details>
 

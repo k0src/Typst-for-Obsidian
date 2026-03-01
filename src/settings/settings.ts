@@ -197,7 +197,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   // Current Obsidian font size
   size: %FONTSIZE%,
   // Theme text color
-  fill: rgb("#%THEMECOLOR%")
+  fill: rgb("#%TEXTCOLOR%")
 )
 
 // Paragraph styling
@@ -210,14 +210,14 @@ export const DEFAULT_SETTINGS: TypstSettings = {
 // Off by default, turn these on to set 
 // most Typst elements to the theme color
 // #show heading: set text(fill: rgb("#%HEADINGCOLOR%"))
-// #show math.equation: set text(fill: rgb("#%THEMECOLOR%"))
+// #show math.equation: set text(fill: rgb("#%TEXTCOLOR%"))
 // #set block(fill: none)
-// #set rect(fill: none, stroke: rgb("#%THEMECOLOR%"))
-// #set box(fill: none, stroke: rgb("#%THEMECOLOR%"))
-// #set circle(fill: none, stroke: rgb("#%THEMECOLOR%"))
-// #set ellipse(fill: none, stroke: rgb("#%THEMECOLOR%"))
-// #set polygon(fill: none, stroke: rgb("#%THEMECOLOR%"))
-// #set line(stroke: rgb("#%THEMECOLOR%"))
-// #show table: set table(stroke: rgb("#%THEMECOLOR%"))
+// #set rect(fill: none, stroke: rgb("#%TEXTCOLOR%"))
+// #set box(fill: none, stroke: rgb("#%TEXTCOLOR%"))
+// #set circle(fill: none, stroke: rgb("#%TEXTCOLOR%"))
+// #set ellipse(fill: none, stroke: rgb("#%TEXTCOLOR%"))
+// #set polygon(fill: none, stroke: rgb("#%TEXTCOLOR%"))
+// #set line(stroke: rgb("#%TEXTCOLOR%"))
+// #show table: set table(stroke: rgb("#%TEXTCOLOR%"))
 // #show math.equation: set box(stroke: none)`,
 };

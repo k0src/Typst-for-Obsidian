@@ -14,7 +14,7 @@ Typst for Obsidian is a [Typst](https://typst.app) editor integrated directly in
 - Toggle between source and PDF preview modes
 - PDF export to vault
 - Theme integration - rendered PDFs adapt to Obsidian themes
-- Template variables for dynamic theming (`%THEMECOLOR%`, `%FONTSIZE%`, etc.)
+- Template variables for dynamic theming (`%TEXTCOLOR%`, `%FONTSIZE%`, etc.)
 - Package support - use local packages from data directory or auto-download from preview namespace
 - System font support (desktop only)
 
@@ -36,7 +36,7 @@ Template variables allow you to use Obsidian CSS styles in your Typst documents.
 For example, to set the text color and page background color to match the Obsidian theme, you can use the following layout function:
 
 ```typst
-#set text(fill: rgb("#%THEMECOLOR%"), size: %FONTSIZE%)
+#set text(fill: rgb("#%TEXTCOLOR%"), size: %FONTSIZE%)
 #set page(fill: rgb("#%BGCOLOR%"), width: %LINEWIDTH%)
 ```
 
@@ -171,7 +171,7 @@ Contributions are welcome, feel free to open issues or submit pull requests for 
 - [ ] Tinymist LSP support
 - [ ] Add support for jumping from preview/PDF to source by clicking on text
 - [ ] Add backlink support in live preview
-- [ ] Support for more template variables
+- [x] Support for more template variables
 - [ ] Improve error handling and reporting
 - [ ] Test and ensure support for all popular Typst packages
 - [ ] Add support for rendering Typst code in fenced code blocks
