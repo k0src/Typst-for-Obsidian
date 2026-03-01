@@ -26,7 +26,7 @@ export class TemplateVariableProvider {
     }
 
     const rgbMatch = color.match(
-      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/
+      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/,
     );
     if (rgbMatch) {
       const r = parseInt(rgbMatch[1]);
@@ -42,7 +42,7 @@ export class TemplateVariableProvider {
     }
 
     const hslMatch = color.match(
-      /hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)/
+      /hsla?\((\d+),\s*(\d+)%,\s*(\d+)%(?:,\s*[\d.]+)?\)/,
     );
     if (hslMatch) {
       const h = parseInt(hslMatch[1]) / 360;
@@ -98,7 +98,7 @@ export class TemplateVariableProvider {
 
   private getCssVariable(
     variableName: string,
-    fallback: string = "000000"
+    fallback: string = "000000",
   ): string {
     const bodyStyle = getComputedStyle(document.body);
     const value = bodyStyle.getPropertyValue(variableName).trim();

@@ -27,34 +27,29 @@ Typst for Obsidian is a [Typst](https://typst.app) editor integrated directly in
 3. Click the preview icon to render PDF
 4. Click the export icon to save PDF to vault
 
-_To do: instructions for different usage types..._
+More usage information, including commands and settings, can be found in the [docs](./docs/docs.md#usage).
 
 ### Template Variables
 
-Use these variables in your Typst documents to match Obsidian themes:
+Template variables allow you to use Obsidian CSS styles in your Typst documents. You can use these variables directly in the editor, or in custom layout functions in settings to create dynamic themes that adapt to Obsidian's light/dark modes.
+
+For example, to set the text color and page background color to match the Obsidian theme, you can use the following layout function:
 
 ```typst
 #set text(fill: rgb("#%THEMECOLOR%"), size: %FONTSIZE%)
 #set page(fill: rgb("#%BGCOLOR%"), width: %LINEWIDTH%)
 ```
 
-Available variables:
-
-- `%THEMECOLOR%` - Primary text color
-- `%FONTSIZE%` - Text size in pt
-- `%BGCOLOR%` - Background color
-- `%LINEWIDTH%` - Page width
-- `%ACCENTCOLOR%`, `%FAINTCOLOR%`, `%MUTEDCOLOR%`
-- `%BGPRIMARY%`, `%BGPRIMARYALT%`, `%BGSECONDARY%`, `%BGSECONDARYALT%`
-- `%SUCCESSCOLOR%`, `%WARNINGCOLOR%`, `%ERRORCOLOR%`
-- `%FONTTEXT%`, `%FONTMONO%`, `%HEADINGCOLOR%`
+All template variables are listed in the [docs](./docs/docs.md#template-variables).
 
 ### Custom Layout Functions
 
-Configure default page layouts in settings:
+Default page layouts functions can be configured in the settings:
 
 - **Default Layout Functions** - Applied to all internal previews
 - **PDF Export Layout Functions** - Applied only when exporting PDFs
+
+More on layout functions and examples can be found in the [docs](./docs/docs.md#layout-functions).
 
 ### Custom Snippets
 
@@ -80,19 +75,26 @@ Example (inserting a table aligned to the center):
 
 ## Settings
 
-- **Default Mode** - Open files in source or reading mode
-- **Auto-download Packages** - Automatically fetch packages from Typst registry
-- **Font Families** - System fonts to load (desktop only)
-- **Layout Functions** - Custom Typst preambles for formatting
-- **Enable Text Layer** - Enable text selection in PDF preview. Disabling this setting may improve performance
-- **Custom Snippets** - Add custom Typst snippets for autocomplete
-- **Syntax Highlighting** - Customize colors for 28 different syntax categories, separately for dark and light themes. Import/export color configurations as JSON
+- **Default file mode** - Choose how `.typ` files open (source, preview, split)
+- **Custom layout functions** - Set default page layout functions for previews and exports
+- **Custom snippets** - Add custom Typst snippets for autocomplete
+- **Font families** - Add custom font families for use in Typst documents
+- **Auto-download packages** - Automatically download packages from the preview namespace when rendering
+- **PDF settings** - Configure PDF export options (save location, open after export, etc.)
+- **Syntax highlighting colors** - Customize syntax highlighting colors for light and dark themes
+- **Editor settings** - Configure editor options (font size, line height, hotkeys, etc.)
 
-_To do: update with all settings..._
+A list of all settings and explanations can be found in the [docs](./docs/docs.md#settings).
 
 ## Commands
 
-_To do: updated commands + editor hotkeys..._
+- **Create new Typst file** - Create a new `.typ` file in the current folder
+- **Toggle preview** - Toggle between source and PDF preview modes
+- **Export PDF** - Export the rendered PDF to your vault
+- **Open PDF in split pane** - Open the rendered PDF in a split pane next to the source file
+- **Insert snippet** - Insert a custom snippet at the cursor position
+
+A list of all commands and explanations can be found in the [docs](./docs/docs.md#commands).
 
 ## Official Template
 
@@ -136,48 +138,19 @@ Make sure to set `standalone: false`. This will prevent the template from adding
 
 ## Installation
 
+### Obsidian Community Plugins
+
+_Coming soon..._
+
+### Manual Installation
+
 1. Download the latest release from the [Releases](https://github.com/k0src/Typst-for-Obsidian/releases) page
 2. Extract `main.js`, `manifest.json`, `styles.css`, and `obsidian_typst_bg.wasm` to your Obsidian plugins folder (`.obsidian/plugins/typst-for-obsidian`)
 3. Enable the plugin in Obsidian settings
 
 ## Contributing
 
-Feel free to open issues or submit pull requests for bug fixes and new features.
-
-### Development
-
-1. Since the plugin uses a Rust WebAssembly module for the Typst compiler, you'll need to have Rust and `wasm-pack` installed.
-2. Clone the repository and navigate to the project directory.
-3. Install the necessary npm packages and build the WebAssembly module:
-
-```bash
-npm install
-cd compiler
-cargo build --release
-wasm-pack build --target web --out-dir ../pkg
-cd ..
-npm run build
-```
-
-4. Create a folder for the plugin in your Obsidian vault's plugins directory: `.obsidian/plugins/typst-for-obsidian`.
-5. Copy the built files (`main.js`, `manifest.json`, `styles.css`, and the `pkg` folder) to the plugin folder you created.
-6. Restart Obsidian and enable the plugin in settings.
-
-For easier deployment during development:
-
-1. Install the [Hot Reload](https://github.com/pjeby/hot-reload) plugin and create a `.hotreload` file in the root directory of the plugin in your vault.
-2. Create a `.env` file in the root directory of the repo with the following content:
-
-```
-SOURCE_DIR="path/to/the/source/directory"
-TARGET_DIR="path/to/your-vault/.obsidian/plugins/typst-for-obsidian"
-```
-
-3. Run the build script to copy files to your Obsidian plugins folder:
-
-```bash
-npm run build:deploy
-```
+Contributions are welcome, feel free to open issues or submit pull requests for bug fixes and new features. For development information, see the [docs](./docs/docs.md#development).
 
 ## Future Plans/Issues to Fix
 
@@ -206,12 +179,7 @@ npm run build:deploy
 - [ ] Editor spellchecker
 - [ ] Organize code...
 
-## Known Issues
-
-- Problems show up in pane on wrong side of split
-- Scroll position restoration when toggling modes is jittery
-
-## Credits
+## Acknowledgements
 
 Compiler implementation inspired by [fenjalien/obsidian-typst](https://github.com/fenjalien/obsidian-typst).
 

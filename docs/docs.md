@@ -1,19 +1,141 @@
 # Typst for Obsidian Documentation
 
-...
-
 ## Usage
 
-- live preview
-- pdf split
-- pdf export
-- spell check
+To use Typst for Obsidian, create a new file with the `.typ` extension or open an existing `.typ` file in your vault. You can edit the file in source mode with syntax highlighting, and click the preview icon to see a live preview of the rendered output. You can also click the export icon to save the rendered PDF to your vault.
+
+There are two main ways to use the plugin to preview and export your Typst files:
+
+1. Live preview: This mode shows a live preview of the rendered output as you edit the source file. The preview updates in real time as you make changes to the source file. This view is embedded directly into the DOM, so the preview will adapt to your Obsidian theme and you can use template variables to match the theme colors, fonts, etc.
+2. PDF export: This mode allows you to export the rendered output as a PDF file. You can specify the location where the PDF is saved, and you can also choose to automatically open the exported PDF in a split pane next to the source file.
 
 ### Template Variables
 
+Template variables are variables specified between `%`s that represent the values of the current CSS variables in Obsidian. These can be used in your Typst documents anywhere to match the styling of your Obsidian theme. Note that anytime you changes themes or add CSS snippets that change the values of CSS variables, the template variables will also change to match the new values. Template variables just get replaced with the current values of the corresponding CSS variables before rendering; they are just strings, so if you need to use them in a context where you need to specify a unit (e.g. `px`, `em`, etc.) or some other formatting, you will need to add that in the code. For example, to set the text size to the current font size, you would use `size: %FONTSIZE%pt` (`px` is automatically converted to `pt` by the plugin).
+
+<details>
+
+<summary>Available template variables:</summary>
+
+| **Category** | **Template Variable**     | **Description**                                        | **Obsidian CSS Variable**      |
+| ------------ | ------------------------- | ------------------------------------------------------ | ------------------------------ |
+| Typography   | `%FONTTEXT%`              | Font used for text in the editor                       | `--font-text-theme`            |
+|              | `%FONTMONO%`              | Font used for monospaced content                       | `--font-monospace`             |
+|              | `%FONTSIZE%`              | Primary editor font sizes                              | `--font-text-size`             |
+|              | `%FONTSIZE-XXS%`          |                                                        | `--font-smallest`              |
+|              | `%FONTSIZE-XS%`           |                                                        | `--font-smaller`               |
+|              | `%FONTSIZE-S%`            |                                                        | `--font-small`                 |
+|              | `%HEADINGSIZE-1%`         | Heading font sizes                                     | `--h1-size`                    |
+|              | `%HEADINGSIZE-2%`         |                                                        | `--h2-size`                    |
+|              | `%HEADINGSIZE-3%`         |                                                        | `--h3-size`                    |
+|              | `%HEADINGSIZE-4%`         |                                                        | `--h4-size`                    |
+|              | `%HEADINGSIZE-5%`         |                                                        | `--h5-size`                    |
+|              | `%HEADINGSIZE-6%`         |                                                        | `--h6-size`                    |
+| Spacing      | `%SIZE-2-1%`              |                                                        | `--size-2-1`                   |
+|              | `%SIZE-2-2%`              |                                                        | `--size-2-2`                   |
+|              | `%SIZE-2-3%`              |                                                        | `--size-2-3`                   |
+|              | `%SIZE-4-1%`              |                                                        | `--size-4-1`                   |
+|              | `%SIZE-4-2%`              |                                                        | `--size-4-2`                   |
+|              | `%SIZE-4-3%`              |                                                        | `--size-4-3`                   |
+|              | `%SIZE-4-4%`              |                                                        | `--size-4-4`                   |
+|              | `%SIZE-4-5%`              |                                                        | `--size-4-5`                   |
+|              | `%SIZE-4-6%`              |                                                        | `--size-4-6`                   |
+|              | `%SIZE-4-8%`              |                                                        | `--size-4-8`                   |
+|              | `%SIZE-4-9%`              |                                                        | `--size-4-9`                   |
+|              | `%SIZE-4-12%`             |                                                        | `--size-4-12`                  |
+|              | `%SIZE-4-16%`             |                                                        | `--size-4-16`                  |
+|              | `%SIZE-4-18%`             |                                                        | `--size-4-18`                  |
+| Layout       | `%LINEWIDTH%`             | Editor line width                                      | `--file-line-width`            |
+|              | `%FILEMARGINS%`           | File margins                                           | `--file-margins`               |
+| Icons        | `%ICONSTROKE%`            |                                                        | `--icon-stroke`                |
+|              | `%ICONCOLOR%`             |                                                        | `--icon-color`                 |
+|              | `%ICONSIZE-XS%`           |                                                        | `--icon-xs`                    |
+|              | `%ICONSIZE-S%`            |                                                        | `--icon-s`                     |
+|              | `%ICONSIZE-M%`            |                                                        | `--icon-m`                     |
+|              | `%ICONSIZE-L%`            |                                                        | `--icon-l`                     |
+|              | `%ICONSIZE-XL%`           |                                                        | `--icon-xl`                    |
+| Colors       | `%ACCENTCOLOR%`           | Accent color                                           | `--text-accent`                |
+|              | `%TEXTCOLOR%`             | Primary text color                                     | `--text-normal`                |
+|              | `%BGCOLOR%`               | Primary background color                               | `--background-primary`         |
+|              | `%FAINTCOLOR%`            | Faint text color                                       | `--text-faint`                 |
+|              | `%MUTEDCOLOR%`            | Muted text color                                       | `--text-muted`                 |
+|              | `%BASECOLOR-00%`          | Base colors, light to dark                             | `--color-base-00`              |
+|              | `%BASECOLOR-05%`          |                                                        | `--color-base-50`              |
+|              | `%BASECOLOR-10%`          |                                                        | `--color-base-10`              |
+|              | `%BASECOLOR-20%`          |                                                        | `--color-base-20`              |
+|              | `%BASECOLOR-25%`          |                                                        | `--color-base-25`              |
+|              | `%BASECOLOR-30%`          |                                                        | `--color-base-30`              |
+|              | `%BASECOLOR-35%`          |                                                        | `--color-base-35`              |
+|              | `%BASECOLOR-40%`          |                                                        | `--color-base-40`              |
+|              | `%BASECOLOR-50%`          |                                                        | `--color-base-50`              |
+|              | `%BASECOLOR-60%`          |                                                        | `--color-base-60`              |
+|              | `%BASECOLOR-70%`          |                                                        | `--color-base-70`              |
+|              | `%BASECOLOR-100%`         |                                                        | `--color-base-100`             |
+|              | `%COLOR-RED%`             | Extended colors                                        | `--color-red`                  |
+|              | `%COLOR-ORANGE%`          |                                                        | `--color-orange`               |
+|              | `%COLOR-YELLOW%`          |                                                        | `--color-yellow`               |
+|              | `%COLOR-GREEN%`           |                                                        | `--color-green`                |
+|              | `%COLOR-CYAN%`            |                                                        | `--color-cyan`                 |
+|              | `%COLOR-BLUE%`            |                                                        | `--color-blue`                 |
+|              | `%COLOR-PURPLE%`          |                                                        | `--color-purple`               |
+|              | `%COLOR-PINK%`            |                                                        | `--color-pink`                 |
+|              | `%BORDERCOLOR%`           | Border color                                           | `--background-modifier-border` |
+|              | `%BGCOLOR-ALT%`           | Background for surfaces on top of primary background   | `--background-primary-alt`     |
+|              | `%BGCOLOR-SECONDARY%`     | Secondary background color                             | `--background-secondary`       |
+|              | `%BGCOLOR-SECONDARY-ALT%` | Background for surfaces on top of secondary background | `--background-secondary-alt`   |
+|              | `%TEXTCOLOR-SUCCESS%`     | Success text color                                     | `--text-success`               |
+|              | `%TEXTCOLOR-WARNING%`     | Warning text color                                     | `--text-warning`               |
+|              | `%TEXTCOLOR-ERROR%`       | Error text color                                       | `--text-error`                 |
+|              | `%HEADINGCOLOR-1%`        | Heading colors                                         | `--h1-color`                   |
+|              | `%HEADINGCOLOR-2%`        |                                                        | `--h2-color`                   |
+|              | `%HEADINGCOLOR-3%`        |                                                        | `--h3-color`                   |
+|              | `%HEADINGCOLOR-4%`        |                                                        | `--h4-color`                   |
+|              | `%HEADINGCOLOR-5%`        |                                                        | `--h5-color`                   |
+|              | `%HEADINGCOLOR-6%`        |                                                        | `--h6-color`                   |
+|              | `%CODEBGCOLOR%`           | Code block background color                            | `--code-background`            |
+|              | `%CODECOLOR%`             | Non-highlighted code color                             | `--code-normal`                |
+|              | `%LINKCOLOR%`             | Link color                                             | `--link-color`                 |
+|              | `%TABLEBGCOLOR`           | Table background color                                 | `--table-background`           |
+
+</details>
+
+The default values for these variables can be found in the [Obsidian documentation](https://docs.obsidian.md/Reference/CSS+variables).
+
 ### Custom Layout Functions
 
+If the "Use custom default layout functions" setting is turned on, the code you specify in the "Custom layout functions" setting will be prepended to every file before rendering. You can use this to set the page to match the Obsidian theme, to control the page margins, and to make the output render as a single page to make the preview appear as a seamless note. [Template variables](#template-variables) can also be used to here, to automatically match the theme colors, fonts, etc. The code you specify here will be applied to both the live preview and PDF exports.
+
+You can optionally specify separate code for PDF exports only using the "Custom PDF export layout functions" setting, which is useful if you want to have different layouts for the live preview and PDF exports. For example, you can use this to use a different page layout for PDF exports, or to add page numbers to the PDF exports but not the live preview.
+
+Most commonly, you'll use the `#set page()` rule here. This function takes various parameters to control the page layout:
+
+- `paper`: Set the paper size (e.g. `a4`, `letter`, etc.)
+- `width` and `height`: Set the width and height of the page. Setting `height: auto` will make the page height automatically adjust to fit the content, which is useful for making the preview render as a single page. Setting `width: auto` will make the page width automatically adjust to fit the content, but this doesn't always work well in the browser. Instead, you can use the `%LINEWIDTH%` template variable to set the page width to match the normal reading width in Obsidian.
+- `margin`: Set the page margins. Setting `margin: 0` will remove the margins, but some margin is usually needed to prevent content from being cut off in the live preview, so I recommend setting a small margin like `margin: (x: 0.25em, y: 0.25em)`.
+- `fill`: Set the background color of the page. You can use the `%BGCOLOR%` template variable to set the background color to match the Obsidian theme.
+- `columns`: Set the number of columns for the page layout. If you need to insert columns into a page or other container, you can also use the `columns` function.
+- `numbering`: Set the page numbering style for the page. For example, `numbering: "i"` will use lowercase Roman numerals, `numbering: "1 / 1"` will show the current page number and total page count, etc.
+- `header` and `footer`: Set the header and footer for the page.
+- `background`: Set the background for the page, which can be a color, an image, or any content.
+
+For example, the default custom layout functions that I use to make the preview match the Obsidian theme and to make the output render as a single page are:
+
+```typst
+#set page(
+  width: %LINEWIDTH%,
+  height: auto,
+  margin: (x: 0.25em, y: 0.25em),
+  fill: rgb("%BGCOLOR%")
+)
+```
+
+All `page` parameters can be found [here](https://typst.app/docs/reference/layout/page/). Other formatting rules can also be used in the custom layout functions, such as `#set text()` to set the default text styling for the document, `#set par()` to set the default paragraph styling, etc. All formatting rules can be found in the [Typst documentation](https://typst.app/docs/tutorial/formatting/).
+
+Custom default layout functions can also be used to import packages or templates to that they apply to every Typst file, so they don't have to be imported every time you want to use them. You can also define custom functions or macros here that you want to use in every file.
+
 ### Typst Code Blocks
+
+_To do..._
 
 ## Settings
 
@@ -45,9 +167,7 @@ _Default_: On
 
 **[Custom layout functions](#custom-layout-functions)**:
 
-If "Use custom default layout functions" is turned on, click the "Edit" button to open the a modal where you can enter any Typst code that will be prepended to every file before rendering. You can use this to set the page to match the Obsidian theme, to control the page margins, and to make the output render as a single page to make the preview appear as a seamless note. [Template variables](#template-variables) can also be used to here, to automatically match the theme colors, fonts, etc.
-
-This code will be applied to both the live preview and PDF exports. You can also specify separate code for PDF exports only using the "Custom PDF export layout functions" setting.
+If "Use custom default layout functions" is turned on, click the "Edit" button to open the a modal where you can enter any Typst code that will be prepended to every file before rendering. This code will be applied to both the live preview and PDF exports. You can also specify separate code for PDF exports only using the "Custom PDF export layout functions" setting.
 
 _Default_: Some default layout functions are set by default to make the preview match the Obsidian theme and to make the output render as a single page.
 
@@ -224,7 +344,7 @@ Click the "Editor hotkeys" setting to open a dropdown where you can set custom h
 <details>
 <summary>Available hotkey actions:</summary>
 
-| Action                                     | Default Hotkey      |
+| **Action**                                 | **Default Hotkey**  |
 | ------------------------------------------ | ------------------- |
 | Bold                                       | `Ctrl + B`          |
 | Italic                                     | `Ctrl + I`          |
@@ -418,4 +538,66 @@ Open a dropdown of custom snippets that you can insert at the current cursor pos
 
 ## Development
 
-## Future Plans
+### Setup
+
+To contribute to the development of this plugin, you can clone the repository and set up the development environment by following these steps:
+
+1. Clone the repository: `git clone https://github.com/k0src/Typst-for-Obsidian.git`.
+2. Install build tools and dependencies:
+   - Install [Rust](https://rust-lang.org/tools/install/) and [Node.js](https://nodejs.org/en/download/). The plugin uses a Rust WebAssembly module for the Typst compiler, so Rust is needed to build the WebAssembly module, and Node.js is needed to build the plugin and manage dependencies.
+   - You will also need to install `wasm-pack` by running `cargo install wasm-pack` in your terminal. This is needed to build the Rust code into WebAssembly.
+   - The [Typst](https://typst.app/open-source/#download) CLI compiler is helpful too.
+3. Install the necessary npm packages and build the WebAssembly module and the plugin:
+   ```bash
+   npm install
+   cd compiler
+   cargo build --release
+   wasm-pack build --target web --out-dir ../pkg
+   cd ..
+   npm run build
+   ```
+4. Create a folder for the plugin in your Obsidian vault's plugins directory: `.obsidian/plugins/typst-for-obsidian`.
+5. Copy the built files (`main.js`, `manifest.json`, `styles.css`, and the `pkg` folder) to the plugin folder you created.
+6. Restart Obsidian and enable the plugin in settings.
+
+For easier deployment during development:
+
+1. Install the [Hot Reload](https://github.com/pjeby/hot-reload) plugin and create a `.hotreload` file in the root directory of the plugin in your vault.
+2. Create a `.env` file in the root directory of the repo with the following content:
+   ```
+   SOURCE_DIR="path/to/the/source/directory"
+   TARGET_DIR="path/to/your-vault/.obsidian/plugins/typst-for-obsidian"
+   ```
+3. Run the build script to copy files to your Obsidian plugins folder:
+   ```bash
+   npm run build:deploy
+   ```
+
+---
+
+After installing the plugin and compiling a Typst file, the plugin directory should look something like this:
+
+```
+typst-for-obsidian/
+├── packages/
+├── pkg/
+├── vscode-oniguruma/
+├── .hotreload
+├── main.js
+├── manifest.json
+├── obsidian_typst_bg.wasm
+├── onig.wasm
+└── styles.css
+```
+
+- `main.js`, `manifest.json`, `styles.css`, and `obsidian_typst_bg.wasm` are the files that need to be copied to the Obsidian plugins folder for the plugin to work.
+- The `pkg` folder contains the WebAssembly module which is imported in `main.js`.
+- The `vscode-oniguruma` folder contains the WebAssembly module for the Oniguruma regex engine, which is used for syntax highlighting in the editor.
+- The `packages` folder contains the Typst Universe packages that are downloaded when you use `#import` to import a package. This folder is automatically created and managed by the plugin.
+- The `.hotreload` file is used by the Hot Reload plugin to watch for changes in the plugin directory and automatically reload the plugin in Obsidian when changes are detected.
+- The `onig.wasm` file is the WebAssembly module for Oniguruma.
+- The `obsidian_typst_bg.wasm` file is the WebAssembly module for the Typst compiler.
+
+### Contributing
+
+Contributions to the plugin are welcome. If you want to contribute, please follow the [Obsidian plugin development guidelines](https://docs.obsidian.md/Developer+policies).
