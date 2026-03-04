@@ -164,9 +164,8 @@ Contributions are welcome, feel free to open issues or submit pull requests for 
 - [x] Fix pasting
 - [ ] Fix scroll position restoration when toggling modes
 - [x] More default file modes - open in last mode, split live preview, split PDF
-- [ ] Open in external editor
 - [ ] Formatter for Typst code
-- [ ] Editor font size setting
+- [x] Editor font size setting
 - [ ] Insert snippet command
 - [ ] Tinymist LSP support
 - [ ] Add support for jumping from preview/PDF to source by clicking on text

@@ -84,7 +84,7 @@ export class TypstEditor {
       wordWrap: "on",
       minimap: { enabled: false },
       lineNumbers: "on",
-      fontSize: 14,
+      fontSize: this.plugin.settings.editorFontSize,
       fontFamily: fontFamily,
       tabSize: 2,
       insertSpaces: true,
@@ -796,6 +796,10 @@ export class TypstEditor {
       }
     }
     this.monacoEditor.focus();
+  }
+
+  public updateFontSize(size: number): void {
+    this.monacoEditor?.updateOptions({ fontSize: size });
   }
 
   public async updateTheme(): Promise<void> {

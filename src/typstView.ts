@@ -589,6 +589,10 @@ export class TypstView extends TextFileView {
     }
   }
 
+  public updateEditorFontSize(size: number): void {
+    this.typstEditor?.updateFontSize(size);
+  }
+
   public showSourceMode(): void {
     const contentEl = this.getContentElement();
     if (!contentEl) return;

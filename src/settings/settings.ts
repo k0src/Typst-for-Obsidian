@@ -62,7 +62,12 @@ export interface SyntaxHighlightColors {
 }
 
 export interface TypstSettings {
-  defaultMode: "source" | "reading" | "last" | "split-live-preview" | "split-pdf";
+  defaultMode:
+    | "source"
+    | "reading"
+    | "last"
+    | "split-live-preview"
+    | "split-pdf";
   useDefaultLayoutFunctions: boolean;
   customLayoutFunctions: string;
   usePdfLayoutFunctions: boolean;
@@ -79,6 +84,7 @@ export interface TypstSettings {
   syntaxHighlightColors: SyntaxHighlightColors;
   useObsidianTextColor: boolean;
   useObsidianMonospaceFont: boolean;
+  editorFontSize: number;
   editorHotkeys: Record<string, string>;
   lastFileModes: Record<string, "source" | "reading">;
 }
@@ -98,6 +104,7 @@ export const DEFAULT_SETTINGS: TypstSettings = {
   livePreviewDebounce: 500,
   useObsidianTextColor: false,
   useObsidianMonospaceFont: true,
+  editorFontSize: 14,
   editorHotkeys: {},
   lastFileModes: {},
   syntaxHighlightColors: {
