@@ -802,6 +802,15 @@ export class TypstEditor {
     this.monacoEditor?.updateOptions({ fontSize: size });
   }
 
+  public insertSnippet(snippetText: string): void {
+    if (!this.monacoEditor) return;
+    const contribution = this.monacoEditor.getContribution<any>("snippetController2");
+    if (contribution) {
+      this.monacoEditor.focus();
+      contribution.insert(snippetText);
+    }
+  }
+
   public async updateTheme(): Promise<void> {
     if (!this.monacoEditor) return;
 

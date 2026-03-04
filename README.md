@@ -166,7 +166,7 @@ Contributions are welcome, feel free to open issues or submit pull requests for 
 - [x] More default file modes - open in last mode, split live preview, split PDF
 - [ ] Formatter for Typst code
 - [x] Editor font size setting
-- [ ] Insert snippet command
+- [x] Insert snippet command
 - [ ] Tinymist LSP support
 - [ ] Add support for jumping from preview/PDF to source by clicking on text
 - [ ] Add backlink support in live preview
