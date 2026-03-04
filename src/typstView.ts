@@ -16,6 +16,8 @@ import { ErrorsDropdown, TypstError, parseTypstError } from "./ui/errorsPane";
 import { EditorHotkeyManager } from "./editorHotkeyManager";
 
 export class TypstView extends TextFileView {
+  private static _suppressAutoSplit = false;
+
   private currentMode: "source" | "reading" = "source";
   private typstEditor: TypstEditor | null = null;
   private fileContent: string = "";
@@ -28,11 +30,26 @@ export class TypstView extends TextFileView {
   private pairedView: TypstView | null = null;
   private currentErrors: TypstError[] = [];
   private errorsDropdown: ErrorsDropdown | null = null;
+  private pendingSplitMode: "split-live-preview" | "split-pdf" | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: TypstForObsidian) {
     super(leaf);
     this.plugin = plugin;
-    this.currentMode = plugin.settings.defaultMode;
+
+    if (TypstView._suppressAutoSplit) {
+      this.currentMode = "source";
+    } else {
+      const defaultMode = plugin.settings.defaultMode;
+      if (defaultMode === "split-live-preview" || defaultMode === "split-pdf") {
+        this.currentMode = "source";
+        this.pendingSplitMode = defaultMode;
+      } else if (defaultMode === "last") {
+        this.currentMode = "source";
+      } else {
+        this.currentMode = defaultMode;
+      }
+    }
+
     this.pdfRenderer = new PdfRenderer();
     this.stateManager = new EditorStateManager();
     this.compilationManager = new CompilationManager(plugin);
@@ -443,6 +460,11 @@ export class TypstView extends TextFileView {
     if (viewContent) {
       viewContent.dataset.mode = mode;
     }
+
+    if (this.file) {
+      this.plugin.settings.lastFileModes[this.file.path] = mode;
+      this.plugin.saveData(this.plugin.settings);
+    }
   }
 
   private async compile(): Promise<Uint8Array | null> {
@@ -501,10 +523,38 @@ export class TypstView extends TextFileView {
   async setViewData(data: string, clear: boolean): Promise<void> {
     this.fileContent = data;
 
+    if (
+      this.plugin.settings.defaultMode === "last" &&
+      this.file &&
+      !this.pairedView
+    ) {
+      const lastMode = this.plugin.settings.lastFileModes[this.file.path];
+      if (lastMode === "reading" && data.trim().length > 0) {
+        this.currentMode = "reading";
+      }
+    }
+
     if (this.currentMode === "source") {
       this.showSourceMode();
     } else {
       await this.loadReadingMode(data);
+    }
+
+    if (this.pendingSplitMode && data.trim().length > 0) {
+      const mode = this.pendingSplitMode;
+      this.pendingSplitMode = null;
+      TypstView._suppressAutoSplit = true;
+      try {
+        if (mode === "split-live-preview") {
+          await this.openSplitPreview();
+        } else if (mode === "split-pdf") {
+          await this.exportAndOpenPdf();
+        }
+      } finally {
+        TypstView._suppressAutoSplit = false;
+      }
+    } else {
+      this.pendingSplitMode = null;
     }
   }
 

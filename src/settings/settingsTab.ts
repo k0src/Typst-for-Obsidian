@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting, setIcon } from "obsidian";
-import { DEFAULT_SETTINGS, SyntaxHighlightColors } from "./settings";
+import { DEFAULT_SETTINGS, SyntaxHighlightColors, TypstSettings } from "./settings";
 import TypstForObsidian from "../main";
 import { SettingsModal } from "./settingsModal";
 import {
@@ -33,15 +33,18 @@ export class TypstSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Default file mode")
       .setDesc(
-        "Choose whether Typst files open in source or reading mode by default",
+        "Choose the default mode that Typst files open in.",
       )
       .addDropdown((dropdown) =>
         dropdown
           .addOption("source", "Source mode")
           .addOption("reading", "Reading mode")
+          .addOption("last", "Last mode")
+          .addOption("split-live-preview", "Split live preview")
+          .addOption("split-pdf", "Split PDF")
           .setValue(this.plugin.settings.defaultMode)
-          .onChange(async (value: "source" | "reading") => {
-            this.plugin.settings.defaultMode = value;
+          .onChange(async (value: string) => {
+            this.plugin.settings.defaultMode = value as TypstSettings["defaultMode"];
             await this.plugin.saveSettings();
           }),
       );

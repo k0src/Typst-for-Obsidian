@@ -163,7 +163,7 @@ Contributions are welcome, feel free to open issues or submit pull requests for 
 - [ ] Fix problems show up on wrong side of split pane
 - [x] Fix pasting
 - [ ] Fix scroll position restoration when toggling modes
-- [ ] More default file modes - open in last mode, split live preview, split PDF
+- [x] More default file modes - open in last mode, split live preview, split PDF
 - [ ] Open in external editor
 - [ ] Formatter for Typst code
 - [ ] Editor font size setting
