@@ -288,7 +288,6 @@ export class TypstEditor {
           const suggestions: monaco.languages.CompletionItem[] = [];
 
           for (const file of files) {
-            if (suggestions.length >= 50) break;
             const name = file.basename;
             if (query && !name.toLowerCase().includes(query)) continue;
 
