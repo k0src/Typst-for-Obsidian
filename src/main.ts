@@ -15,7 +15,7 @@ import { ONIGURUMA_WASM_URL } from "./util/constants";
 import { TypstSettingTab } from "./settings/settingsTab";
 import { TypstSettings, DEFAULT_SETTINGS } from "./settings/settings";
 import { TemplateVariableProvider } from "./templateVariableProvider";
-import { BacklinkParser } from "./backlinkParser";
+import { BacklinkParser, BACKLINK_URI_PREFIX } from "./backlinkParser";
 import { PackageManager } from "./packageManager";
 import { FontManager } from "./fontManager";
 import { SnippetManager } from "./snippetManager";
@@ -120,6 +120,22 @@ export default class TypstForObsidian extends Plugin {
         await this.onThemeChange();
       }),
     );
+
+    this.registerDomEvent(document, "click", (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href") || anchor.dataset?.href || "";
+      if (!href.startsWith(BACKLINK_URI_PREFIX)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const params = new URLSearchParams(href.slice(BACKLINK_URI_PREFIX.length));
+      const filePath = params.get("file") || "";
+      const subpath = params.get("subpath") || "";
+      const linkTarget = filePath + subpath;
+      const newTab = e.ctrlKey || e.metaKey;
+      this.app.workspace.openLinkText(linkTarget, "", newTab ? "tab" : false);
+    }, true);
 
     this.registerEvent(
       this.app.workspace.on("file-menu", (menu, file, source) => {

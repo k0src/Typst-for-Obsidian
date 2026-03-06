@@ -171,7 +171,7 @@ Contributions are welcome, feel free to open issues or submit pull requests for 
 - [ ] Add support for jumping from preview/PDF to source by clicking on text
 - [ ] Add backlink support
     - Backlinks in live preview/reading mode (done)
-    - Backlinks in exported PDFs
+    - Backlinks in exported PDFs (done)
     - Support for linking to Typst files from Typst files, and linking to Typst files from Markdown notes
     - Add linked mentions to backlinks section in sidebar (and graph view)
 - [x] Support for more template variables

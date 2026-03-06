@@ -1,6 +1,6 @@
 import { App, getLinkpath, parseLinktext } from "obsidian";
 
-const BACKLINK_URI_PREFIX = "obsidian://open?";
+const BACKLINK_URI_PREFIX = "https://obsidian-backlink.invalid/open?";
 
 export { BACKLINK_URI_PREFIX };
 
