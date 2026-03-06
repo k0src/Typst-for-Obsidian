@@ -174,7 +174,7 @@ Contributions are welcome, feel free to open issues or submit pull requests for 
     - Backlinks in exported PDFs (done)
     - Support for linking to Typst files from Typst files, and linking to Typst files from Markdown notes
     - Add linked mentions to backlinks section in sidebar (and graph view)
-    - Autocomplete in editor for backlinks
+    - Autocomplete in editor for backlinks (done)
 - [x] Support for more template variables
 - [ ] Improve error handling and reporting
 - [ ] Test and ensure support for all popular Typst packages

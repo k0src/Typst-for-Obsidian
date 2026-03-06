@@ -21,6 +21,7 @@ export class TypstEditor {
   private plugin: TypstForObsidian;
   private snippetManager: SnippetManager;
   private completionDisposable: monaco.IDisposable | null = null;
+  private backlinkCompletionDisposable: monaco.IDisposable | null = null;
 
   constructor(
     container: HTMLElement,
@@ -44,6 +45,10 @@ export class TypstEditor {
     if (this.completionDisposable) {
       this.completionDisposable.dispose();
       this.completionDisposable = null;
+    }
+    if (this.backlinkCompletionDisposable) {
+      this.backlinkCompletionDisposable.dispose();
+      this.backlinkCompletionDisposable = null;
     }
     if (this.monacoEditor) {
       this.monacoEditor.dispose();
@@ -114,6 +119,7 @@ export class TypstEditor {
     });
 
     this.registerSnippets();
+    this.registerBacklinkCompletion();
 
     this.monacoEditor.onDidChangeModelContent(() => {
       if (this.monacoEditor) {
@@ -249,6 +255,55 @@ export class TypstEditor {
         },
       },
     );
+  }
+
+  private registerBacklinkCompletion(): void {
+    this.backlinkCompletionDisposable =
+      monaco.languages.registerCompletionItemProvider("typst", {
+        triggerCharacters: ["["],
+        provideCompletionItems: (model, position) => {
+          const lineContent = model.getLineContent(position.lineNumber);
+          const beforeCursor = lineContent.substring(0, position.column - 1);
+
+          const bracketMatch = beforeCursor.match(/\[\[([^\[\]]*)$/);
+          if (!bracketMatch) return { suggestions: [] };
+
+          const query = bracketMatch[1].toLowerCase();
+          const startColumn = position.column - bracketMatch[1].length;
+
+          const afterCursor = lineContent.substring(position.column - 1);
+          const closingMatch = afterCursor.match(/^[^\[\]]*\]\]/);
+          const endColumn = closingMatch
+            ? position.column + closingMatch[0].length - 2
+            : position.column;
+
+          const range = {
+            startLineNumber: position.lineNumber,
+            startColumn,
+            endLineNumber: position.lineNumber,
+            endColumn,
+          };
+
+          const files = this.plugin.app.vault.getFiles();
+          const suggestions: monaco.languages.CompletionItem[] = [];
+
+          for (const file of files) {
+            const name = file.basename;
+            if (query && !name.toLowerCase().includes(query)) continue;
+
+            suggestions.push({
+              label: name,
+              kind: monaco.languages.CompletionItemKind.File,
+              detail: file.parent?.path || "",
+              insertText:
+                file.extension === "md" ? name : `${name}.${file.extension}`,
+              range,
+            });
+          }
+
+          return { suggestions };
+        },
+      });
   }
 
   public getContent(): string {
@@ -804,7 +859,8 @@ export class TypstEditor {
 
   public insertSnippet(snippetText: string): void {
     if (!this.monacoEditor) return;
-    const contribution = this.monacoEditor.getContribution<any>("snippetController2");
+    const contribution =
+      this.monacoEditor.getContribution<any>("snippetController2");
     if (contribution) {
       this.monacoEditor.focus();
       contribution.insert(snippetText);
