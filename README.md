@@ -169,7 +169,11 @@ Contributions are welcome, feel free to open issues or submit pull requests for 
 - [x] Insert snippet command
 - [ ] Tinymist LSP support
 - [ ] Add support for jumping from preview/PDF to source by clicking on text
-- [ ] Add backlink support in live preview
+- [ ] Add backlink support
+    - Backlinks in live preview/reading mode (done)
+    - Backlinks in exported PDFs
+    - Support for linking to Typst files from Typst files, and linking to Typst files from Markdown notes
+    - Add linked mentions to backlinks section in sidebar (and graph view)
 - [x] Support for more template variables
 - [ ] Improve error handling and reporting
 - [ ] Test and ensure support for all popular Typst packages
