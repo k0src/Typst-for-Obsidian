@@ -662,6 +662,15 @@ export class TypstView extends TextFileView {
         pdfData,
         readingDiv,
         this.plugin.settings.enableTextLayer,
+        (linkTarget: string, newTab: boolean) => {
+          if (this.file) {
+            this.app.workspace.openLinkText(
+              linkTarget,
+              this.file.path,
+              newTab ? "tab" : false,
+            );
+          }
+        },
       );
       const savedScroll = this.stateManager.getSavedReadingScrollTop();
 

@@ -1,6 +1,12 @@
 import { init, WrappedPdfiumModule } from "@embedpdf/pdfium";
 import { requestUrl } from "obsidian";
 import { PDFIUM_WASM_URL } from "./util/constants";
+import { BACKLINK_URI_PREFIX } from "./backlinkParser";
+
+export type BacklinkClickHandler = (
+  linkTarget: string,
+  newTab: boolean,
+) => void;
 
 export class PdfRenderer {
   private pdfium: WrappedPdfiumModule | null = null;
@@ -43,7 +49,8 @@ export class PdfRenderer {
   async renderPdf(
     pdfData: Uint8Array,
     container: HTMLElement,
-    enableTextLayer: boolean = true
+    enableTextLayer: boolean = true,
+    onBacklinkClick?: BacklinkClickHandler,
   ): Promise<void> {
     try {
       await this.ensurePdfiumInitialized();
@@ -63,7 +70,7 @@ export class PdfRenderer {
       const docPtr = this.pdfium.FPDF_LoadMemDocument(
         filePtr,
         pdfData.length,
-        ""
+        "",
       );
 
       if (!docPtr) {
@@ -78,7 +85,13 @@ export class PdfRenderer {
 
         // Render all pages
         for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-          await this.renderPage(docPtr, pageIndex, container, enableTextLayer);
+          await this.renderPage(
+            docPtr,
+            pageIndex,
+            container,
+            enableTextLayer,
+            onBacklinkClick,
+          );
         }
       } finally {
         // Clean up document
@@ -95,7 +108,8 @@ export class PdfRenderer {
     docPtr: number,
     pageIndex: number,
     container: HTMLElement,
-    enableTextLayer: boolean
+    enableTextLayer: boolean,
+    onBacklinkClick?: BacklinkClickHandler,
   ): Promise<void> {
     if (!this.pdfium) throw new Error("PDFium not initialized");
 
@@ -136,7 +150,7 @@ export class PdfRenderer {
       const bitmapPtr = this.pdfium.FPDFBitmap_Create(
         scaledWidth,
         scaledHeight,
-        0
+        0,
       );
       if (!bitmapPtr) {
         throw new Error("Failed to create bitmap");
@@ -149,7 +163,7 @@ export class PdfRenderer {
           0,
           scaledWidth,
           scaledHeight,
-          0xffffffff
+          0xffffffff,
         );
 
         this.pdfium.FPDF_RenderPageBitmap(
@@ -160,7 +174,7 @@ export class PdfRenderer {
           scaledWidth,
           scaledHeight,
           0, // No rotation
-          0x10 | 0x01 | 0x800 // FPDF_REVERSE_BYTE_ORDER | FPDF_ANNOT | FPDF_LCD_TEXT
+          0x10 | 0x01 | 0x800, // FPDF_REVERSE_BYTE_ORDER | FPDF_ANNOT | FPDF_LCD_TEXT
         );
 
         // Get the bitmap buffer
@@ -174,12 +188,12 @@ export class PdfRenderer {
         const buffer = new Uint8Array(
           pdfiumModule.HEAPU8.buffer,
           pdfiumModule.HEAPU8.byteOffset + bufferPtr,
-          bufferSize
+          bufferSize,
         ).slice();
         const imageData = new ImageData(
           new Uint8ClampedArray(buffer.buffer),
           scaledWidth,
-          scaledHeight
+          scaledHeight,
         );
 
         const ctx = canvas.getContext("2d");
@@ -196,7 +210,7 @@ export class PdfRenderer {
             width,
             height,
             scale,
-            dpr
+            dpr,
           );
 
           // Render link layer
@@ -207,7 +221,8 @@ export class PdfRenderer {
             width,
             height,
             scale,
-            dpr
+            dpr,
+            onBacklinkClick,
           );
         }
 
@@ -226,7 +241,7 @@ export class PdfRenderer {
     pageWidth: number,
     pageHeight: number,
     scale: number,
-    dpr: number
+    dpr: number,
   ): Promise<void> {
     if (!this.pdfium) return;
 
@@ -244,7 +259,7 @@ export class PdfRenderer {
       const rectCount = this.pdfium.FPDFText_CountRects(
         textPagePtr,
         0,
-        charCount
+        charCount,
       );
       if (rectCount <= 0) return;
 
@@ -265,7 +280,7 @@ export class PdfRenderer {
             leftPtr,
             topPtr,
             rightPtr,
-            bottomPtr
+            bottomPtr,
           );
 
           if (!success) continue;
@@ -282,7 +297,7 @@ export class PdfRenderer {
             right,
             bottom,
             textBufferPtr,
-            textBufferSize
+            textBufferSize,
           );
 
           if (textLength > 1) {
@@ -329,7 +344,8 @@ export class PdfRenderer {
     pageWidth: number,
     pageHeight: number,
     scale: number,
-    dpr: number
+    dpr: number,
+    onBacklinkClick?: BacklinkClickHandler,
   ): Promise<void> {
     if (!this.pdfium || typeof this.pdfium.FPDFLink_Enumerate !== "function") {
       return;
@@ -370,7 +386,7 @@ export class PdfRenderer {
               docPtr,
               dest,
               pageHeight,
-              scale
+              scale,
             );
           } else {
             continue;
@@ -383,7 +399,7 @@ export class PdfRenderer {
               docPtr,
               action,
               0,
-              0
+              0,
             );
             if (uriLength <= 0) continue;
 
@@ -391,23 +407,39 @@ export class PdfRenderer {
               docPtr,
               action,
               urlBufferPtr,
-              urlBufferSize
+              urlBufferSize,
             );
 
             const urlBytes = new Uint8Array(
               pdfiumModule.HEAPU8.buffer,
               pdfiumModule.HEAPU8.byteOffset + urlBufferPtr,
-              uriLength - 1
+              uriLength - 1,
             );
             const url = new TextDecoder().decode(urlBytes);
 
             if (!url) continue;
 
-            linkElement.href = url;
-            linkElement.addEventListener("click", (e) => {
-              e.preventDefault();
-              window.open(url, "_blank");
-            });
+            if (url.startsWith(BACKLINK_URI_PREFIX) && onBacklinkClick) {
+              const params = new URLSearchParams(
+                url.slice(BACKLINK_URI_PREFIX.length),
+              );
+              const filePath = params.get("file") || "";
+              const subpath = params.get("subpath") || "";
+              const linkTarget = filePath + subpath;
+              linkElement.href = "#";
+              linkElement.classList.add("typst-backlink");
+              linkElement.addEventListener("click", (e) => {
+                e.preventDefault();
+                const newTab = e.ctrlKey || e.metaKey;
+                onBacklinkClick(linkTarget, newTab);
+              });
+            } else {
+              linkElement.href = url;
+              linkElement.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.open(url, "_blank");
+              });
+            }
           } else if (actionType === 1) {
             const dest = this.pdfium.FPDFAction_GetDest(docPtr, action);
             if (dest) {
@@ -416,7 +448,7 @@ export class PdfRenderer {
                 docPtr,
                 dest,
                 pageHeight,
-                scale
+                scale,
               );
             } else {
               continue;
@@ -452,7 +484,7 @@ export class PdfRenderer {
     docPtr: number,
     dest: number,
     pageHeight: number,
-    scale: number
+    scale: number,
   ): void {
     if (!this.pdfium) return;
 
@@ -474,7 +506,7 @@ export class PdfRenderer {
         hasZoomPtr,
         xPtr,
         yPtr,
-        zoomPtr
+        zoomPtr,
       );
 
       let scrollY: number | null = null;
@@ -490,7 +522,7 @@ export class PdfRenderer {
         e.preventDefault();
 
         const scrollContainer = linkElement.closest(
-          ".view-content"
+          ".view-content",
         ) as HTMLElement;
         const pages = document.querySelectorAll(".typst-pdf-page");
         const targetPage = pages[destPageIndex] as HTMLElement;

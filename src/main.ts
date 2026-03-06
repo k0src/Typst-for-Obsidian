@@ -15,6 +15,7 @@ import { ONIGURUMA_WASM_URL } from "./util/constants";
 import { TypstSettingTab } from "./settings/settingsTab";
 import { TypstSettings, DEFAULT_SETTINGS } from "./settings/settings";
 import { TemplateVariableProvider } from "./templateVariableProvider";
+import { BacklinkParser } from "./backlinkParser";
 import { PackageManager } from "./packageManager";
 import { FontManager } from "./fontManager";
 import { SnippetManager } from "./snippetManager";
@@ -33,6 +34,7 @@ export default class TypstForObsidian extends Plugin {
   settings: TypstSettings;
   compilerWorker: Worker;
   templateProvider: TemplateVariableProvider;
+  backlinkParser: BacklinkParser;
   packageManager: PackageManager;
   fontManager: FontManager;
   snippetManager: SnippetManager;
@@ -46,6 +48,7 @@ export default class TypstForObsidian extends Plugin {
   async onload() {
     this.textEncoder = new TextEncoder();
     this.templateProvider = new TemplateVariableProvider();
+    this.backlinkParser = new BacklinkParser(this.app);
     this.snippetManager = new SnippetManager();
     await this.loadSettings();
 
@@ -298,6 +301,7 @@ export default class TypstForObsidian extends Plugin {
     }
 
     finalSource = this.templateProvider.replaceVariables(finalSource);
+    finalSource = this.backlinkParser.replaceBacklinks(finalSource, path);
 
     const message = {
       type: "compile",
